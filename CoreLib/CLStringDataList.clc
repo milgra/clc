@@ -1,0 +1,88 @@
+#include "CLString.clc"
+#include "CLObject.clc"
+#include "CLDataList.clc"
+
+
+CLStringDataList:CLObject
+{
+
+
+	// checks if list contains string
+
+	long long indexOfString ( CLString*		theString ,
+							  CLDataList*	theDataList )
+	{
+	
+		int position = -1;
+
+		struct CLLink* link = theDataList.head;
+				
+		while ( link != NULL )
+		{
+
+			position += 1;
+			
+			CLString* string = link->data;
+
+			if ( theString:equals( string ) == 1 ) return position;
+			
+			link = link->next;
+
+		}
+		
+		return -1;
+
+	}
+
+
+	// splits strings into words separated by given character
+
+	CLDataList* splitStringByCharacter( CLString*	theString ,
+										char		theCharacter )
+	{
+
+		CLDataList*	result	= CLDataList:alloc( );	// needs release
+		CLString*	word	= CLString:alloc( );	// needs release
+		
+		result.init( );
+		word.init( );
+	
+		struct CLChar* link = theString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == theCharacter )
+			{
+
+				if ( word.length > 0 )
+				{
+				
+					result.addData( word );
+					word.release( );
+					word = CLString:alloc( );
+					word.init( );
+					
+				}
+
+			}
+			else
+			{
+			
+				word:appendCharacter( link->character );
+			
+			}
+
+			link = link->next;
+
+		}
+				
+		if ( word.length > 0 ) result.addData( word );
+		
+		word.release( );
+	
+		return result;
+	
+	}
+
+}

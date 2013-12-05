@@ -1,0 +1,267 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "CLLink.h"
+#include "CLObject.clc"
+
+CLObjectList:CLObject
+{
+
+	struct CLLink* 	head;		// pointer to first link
+	struct CLLink* 	last;		// pointer to last link
+	unsigned long	length;		// element count of list
+
+
+	// constructor
+
+	void init( )
+    {
+
+		CLObject:init( self  );
+	
+		head 	= NULL;
+		last 	= NULL;
+		length	= 0;
+    
+    }
+
+	
+	// destructor
+
+	void destruct( )
+	{
+		
+		removeAllObjects( );
+
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	// appends object to list
+	
+	void addObject( CLObject* theObject )
+	{
+	
+		theObject.retain( );
+
+		// create link
+
+		struct CLLink* newLink = malloc( sizeof( struct CLLink ) );
+		
+		newLink->data = theObject;
+		newLink->next = NULL;
+
+		if ( head == NULL ) head = newLink;
+		else last->next = newLink;
+
+		last	= newLink;
+		length	= length + 1;
+		
+	}
+
+
+	// appends given object list to object list
+
+	void addObjectsInObjectList( CLObjectList* theObjectList )
+	{
+
+		if ( theObjectList.length > 0 )
+		{
+
+			struct CLLink* link = theObjectList.head;
+
+			while ( link != NULL )
+			{
+			
+				addObject( link->data );
+				
+				link = link->next;
+				
+			}
+
+		}
+		
+	}
+	
+
+	// removes data from data chain
+	
+	void removeObject( CLObject* theObject )
+	{
+
+		struct CLLink* link = head;
+		struct CLLink* prev = NULL;
+		
+		while ( link != NULL )
+		{
+			
+			if ( link->data == theObject )
+			{
+			
+				if		( link->next == NULL && prev != NULL )
+				{
+					prev->next = NULL;
+					last = prev;
+				}
+				else if ( link->next != NULL && prev == NULL )
+				{
+					head = link->next;
+				}
+				else if ( link->next != NULL && prev != NULL )
+				{
+					prev->next = link->next;
+				}
+				else
+				{
+					head = NULL;
+					last = NULL;
+				}
+				
+				CLObject* oneObject = link->data;
+				oneObject.release( );
+
+				free( link );
+				length -= 1;
+				
+				return;
+				
+			}
+			
+			prev = link;
+			link = link->next;
+					
+		}
+			
+	}
+	
+	
+	// removes object at given index
+	
+	CLObject* removeObjectAtIndex( unsigned long theIndex )
+	{
+	
+		// !!! a more optimized solution is needed
+	
+		CLObject* object = objectAtIndex( theIndex );
+		if ( object != NULL ) removeObject( object );
+		return object;
+	
+	}
+
+	
+	// empties object list
+	
+	void removeAllObjects( )
+	{
+	
+		struct CLLink* link = head;
+		struct CLLink* prev = NULL;
+
+		while ( link != NULL ) 
+		{
+		
+			prev = link;
+			link = link->next;
+			
+			CLObject* object = prev->data;
+			object.release( );
+			
+			free( prev );
+			
+		}
+
+		head 	= NULL;
+		last 	= NULL;
+		length	= 0;
+	
+	}
+			
+
+	// returns object at given index
+
+	CLObject* objectAtIndex( unsigned long theIndex )
+	{
+
+		struct CLLink*	link	 = head;
+		long long		position = 0;
+
+		while ( link != NULL )
+		{
+
+			if ( position == theIndex ) return link->data;
+
+			link = link->next;
+			position += 1;
+
+		}
+
+		return NULL;
+
+	}
+	
+	
+	// returns index of data
+	
+	long long indexOfObject( CLObject* theObject )
+	{
+	
+		long long position = -1;
+
+		struct CLLink* link = head;
+		
+		while ( link != NULL )
+		{
+		
+			position += 1;
+			
+			if ( link->data == theObject ) return position;
+			
+			link = link->next;
+					
+		}
+		
+		return -1;
+	
+	}
+
+
+	// returns first object
+	
+	CLObject* firstObject( )
+	{
+	
+		if ( head != NULL ) return head->data;
+		return NULL;
+	
+	}
+	
+	
+	// returns last object
+	
+	CLObject* lastObject( )
+	{
+	
+		if ( last != NULL ) return last->data;
+		return NULL;
+	
+	}
+	
+
+	// describes instance		
+
+	void describe( )
+	{
+	
+		struct CLLink* link = head;
+		
+		while ( link != NULL )
+		{
+			CLObject* object = link->data;
+			object.describe( );
+			printf( " " );
+			link = link->next;
+		}
+	
+	}
+
+}

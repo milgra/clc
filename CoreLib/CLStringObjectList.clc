@@ -1,0 +1,171 @@
+#include "CLString.clc"
+#include "CLObject.clc"
+#include "CLObjectList.clc"
+
+
+CLStringObjectList:CLObject
+{
+
+
+	// checks if list contains string
+
+	long long indexOfString( CLString*		theString ,
+							 CLObjectList*	theObjectList )
+	{
+	
+		int position = -1;
+
+		struct CLLink* link = theObjectList.head;
+				
+		while ( link != NULL )
+		{
+
+			position += 1;
+			
+			CLString* string = ( CLString* ) link->data;
+
+			if ( theString.equals( string ) == 1 ) return position;
+			
+			link = link->next;
+					
+		}
+		
+		return -1;
+
+	}
+    
+	
+	// removes given string from object list
+    
+    void removeString(	CLString*	  theString ,
+						CLObjectList* theObjectList )
+    {
+    
+		struct CLLink* link = theObjectList.head;
+        CLObject* result = NULL;
+				
+		while ( link != NULL )
+		{
+
+			CLString* string = ( CLString* ) link->data;
+
+			if ( theString.equals( string ) == 1 )
+            {
+                result = link->data;
+                break;
+            }
+			
+			link = link->next;
+					
+		}
+		
+        if ( result != NULL ) theObjectList.removeObject( result );
+    
+    }
+	    
+	
+	// removes given strings from object list
+    
+    void removeStrings( CLObjectList* theStringList ,
+						CLObjectList* theObjectList )
+    {
+    
+		struct CLLink* link = theStringList.head;
+        
+        while( link != NULL )
+        {
+        
+            CLString* string = ( CLString* ) link->data;
+            removeString( string , theObjectList );
+            link = link->next;
+        
+        }
+    
+    }
+    
+	
+	// adds string to list if it's not exist
+    
+    void addStringAsUnique(	CLString*		theString ,
+							CLObjectList*	theObjectList )
+    {
+        
+        long long index = indexOfString( theString , theObjectList );
+        if ( index == -1 ) theObjectList.addObject( ( CLObject* ) theString );
+    
+    }
+
+    
+	// adds strings to list if they're not exist
+    
+    void addStringsAsUnique( CLObjectList* theStringList ,
+							 CLObjectList* theObjectList )
+    {
+	        
+        struct CLLink* link = theStringList.head;
+        
+        while ( link != NULL )
+        {
+
+            CLString* string = ( CLString* ) link->data;
+            
+            addStringAsUnique( string , theObjectList );
+            
+            link = link->next;
+            
+        }
+        
+    }
+
+
+	// splits strings into words separated by given character
+
+	CLObjectList* splitStringByCharacter(	CLString*	theString ,
+											char		theCharacter )
+	{
+	
+		CLObjectList*	result	= CLObjectList:alloc( );	// needs release
+		CLString*		word	= CLString:alloc( );		// needs release
+		
+		result.init( );
+		word.init( );
+	
+		struct CLChar* link = theString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == theCharacter )
+			{
+
+				if ( word.length > 0 )
+				{
+				
+					result:addObject( ( CLObject* ) word );
+					word.release( );
+					word = CLString:alloc( );
+					word.init( );
+					
+				}
+
+			}
+			else
+			{
+			
+				word:appendCharacter( link->character );
+			
+			}
+
+			link = link->next;
+
+		}
+				
+		if ( word.length > 0 ) result:addObject( ( CLObject* ) word );
+		
+		word.release( );
+	
+		return result;
+	
+	}
+
+}

@@ -1,0 +1,66 @@
+
+
+CLObject
+{
+
+	unsigned long retainCount;
+
+
+	// constructor	
+
+	void init ( )
+	{
+
+		retainCount = 1;
+		
+	}
+
+
+	// destructor
+
+	void destruct( )
+	{
+		
+
+		
+	}
+	
+	
+	// retains object
+	
+	void retain ( )
+	{
+
+		retainCount = retainCount + 1;
+
+	}
+	
+	
+	// releases object
+
+	void release ( )
+	{
+
+		retainCount = retainCount - 1;
+		
+		if ( retainCount == 0 )
+		{
+
+			self.destruct( );
+			free_object( self );
+
+		}
+
+	}
+	
+	
+	// describes object
+	
+	void describe ( )
+	{
+	
+		printf( "\nObject %li retainCount %li" , ( long ) self , retainCount );
+		
+	}
+
+}

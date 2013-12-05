@@ -1,0 +1,75 @@
+//
+//	CLThread class
+//
+//	Contains a POSIX thread and mutex
+//	Thread can be started with the start method
+//	Containing classes can use the mutex member for locking
+//
+
+#include <pthread.h>
+#include "CLObject.clc"
+
+
+CLThread:CLObject
+{
+
+	char			alive;
+	pthread_t 		thread;
+	pthread_mutex_t mutex;
+	
+	
+	// constructor
+
+	void init( )
+	{
+
+		CLObject:init( self );
+		
+		alive = 1;
+	
+		pthread_mutex_init( &mutex , NULL );
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		int code = pthread_cancel( thread );
+		if ( code ) printf( "CLThread pthread_cancel error %d\n", code );
+	
+		pthread_mutex_destroy( &mutex );
+
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	// starts thread
+	
+	void start( )
+	{
+
+		int code = pthread_create( 
+			&thread , 
+			NULL, 
+			( void*(*)(void*) ) run ,
+			self );
+
+		if ( code ) printf( "CLThread pthread_create error %d\n", code );
+	
+	}
+	
+	
+	// thread execution function
+	
+	void* run( )
+	{
+	
+		return NULL;
+	
+	}
+
+}

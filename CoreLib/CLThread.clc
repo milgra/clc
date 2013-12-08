@@ -37,7 +37,9 @@ CLThread:CLObject
 	void destruct( )
 	{
 
-		int code = pthread_cancel( thread );
+		int code;
+		
+		code = pthread_cancel( thread );
 		if ( code ) printf( "CLThread pthread_cancel error %d\n", code );
 	
 		pthread_mutex_destroy( &mutex );
@@ -52,7 +54,9 @@ CLThread:CLObject
 	void start( )
 	{
 
-		int code = pthread_create( 
+		int code;
+		
+		code = pthread_create(
 			&thread , 
 			NULL, 
 			( void*(*)(void*) ) run ,

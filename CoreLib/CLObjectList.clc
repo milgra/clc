@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "CLLink.h"
 #include "CLObject.clc"
 
@@ -9,8 +7,8 @@ CLObjectList:CLObject
 	struct CLLink* 	head;		// pointer to first link
 	struct CLLink* 	last;		// pointer to last link
 	unsigned long	length;		// element count of list
-
-
+	
+	
 	// constructor
 
 	void init( )
@@ -41,13 +39,14 @@ CLObjectList:CLObject
 	
 	void addObject( CLObject* theObject )
 	{
+
+		struct CLLink* newLink;
 	
 		theObject.retain( );
 
 		// create link
-
-		struct CLLink* newLink = malloc( sizeof( struct CLLink ) );
 		
+		newLink = malloc( sizeof( struct CLLink ) );
 		newLink->data = theObject;
 		newLink->next = NULL;
 
@@ -58,6 +57,52 @@ CLObjectList:CLObject
 		length	= length + 1;
 		
 	}
+	
+	
+	// adds object at given index
+	
+	void addObjectAtIndex(	CLObject*		theObject ,
+							unsigned long	theIndex )
+	{
+	
+		struct CLLink*	link;
+		struct CLLink*	lastLink;
+		struct CLLink*  newLink;
+		unsigned long	position;
+		
+		// init
+		
+		lastLink = NULL;
+		link	 = head;
+		position = 0;
+
+		theObject.retain( );
+
+		while ( link != NULL )
+		{
+
+			if ( position == theIndex )
+			{
+
+				newLink = malloc( sizeof( struct CLLink ) );
+				newLink->data = theObject;
+				newLink->next = link;
+				
+				if ( lastLink != NULL )	lastLink->next = newLink;
+				else head = newLink;
+				length = length + 1;
+				
+				return;
+			
+			}
+
+			position += 1;
+			lastLink = link;
+			link = link->next;
+
+		}
+	
+	}
 
 
 	// appends given object list to object list
@@ -65,10 +110,12 @@ CLObjectList:CLObject
 	void addObjectsInObjectList( CLObjectList* theObjectList )
 	{
 
+		struct CLLink* link;
+
 		if ( theObjectList.length > 0 )
 		{
 
-			struct CLLink* link = theObjectList.head;
+			link = theObjectList.head;
 
 			while ( link != NULL )
 			{
@@ -89,8 +136,15 @@ CLObjectList:CLObject
 	void removeObject( CLObject* theObject )
 	{
 
-		struct CLLink* link = head;
-		struct CLLink* prev = NULL;
+		struct CLLink* link;
+		struct CLLink* prev;
+
+		CLObject* oneObject;
+		
+		// init
+		
+		link = head;
+		prev = NULL;
 		
 		while ( link != NULL )
 		{
@@ -117,7 +171,7 @@ CLObjectList:CLObject
 					last = NULL;
 				}
 				
-				CLObject* oneObject = link->data;
+				oneObject = link->data;
 				oneObject.release( );
 
 				free( link );
@@ -142,7 +196,11 @@ CLObjectList:CLObject
 	
 		// !!! a more optimized solution is needed
 	
-		CLObject* object = objectAtIndex( theIndex );
+		CLObject* object;
+		
+		// init
+		
+		object = objectAtIndex( theIndex );
 		if ( object != NULL ) removeObject( object );
 		return object;
 	
@@ -154,8 +212,15 @@ CLObjectList:CLObject
 	void removeAllObjects( )
 	{
 	
-		struct CLLink* link = head;
-		struct CLLink* prev = NULL;
+		struct CLLink* link;
+		struct CLLink* prev;
+
+		CLObject* object;
+		
+		// init
+		
+		link = head;
+		prev = NULL;
 
 		while ( link != NULL ) 
 		{
@@ -163,7 +228,7 @@ CLObjectList:CLObject
 			prev = link;
 			link = link->next;
 			
-			CLObject* object = prev->data;
+			object = prev->data;
 			object.release( );
 			
 			free( prev );
@@ -182,16 +247,21 @@ CLObjectList:CLObject
 	CLObject* objectAtIndex( unsigned long theIndex )
 	{
 
-		struct CLLink*	link	 = head;
-		long long		position = 0;
+		struct CLLink* link;
+		unsigned long position;
+		
+		// init
+		
+		link = head;
+		position = 0;
 
 		while ( link != NULL )
 		{
 
 			if ( position == theIndex ) return link->data;
 
-			link = link->next;
 			position += 1;
+			link = link->next;
 
 		}
 
@@ -200,27 +270,55 @@ CLObjectList:CLObject
 	}
 	
 	
-	// returns index of data
+	// check if object is in the list
 	
-	long long indexOfObject( CLObject* theObject )
+	char containsObject( CLObject* theObject )
 	{
 	
-		long long position = -1;
-
-		struct CLLink* link = head;
+		struct CLLink* link;
+		
+		// init
+		
+		link = head;
 		
 		while ( link != NULL )
 		{
-		
-			position += 1;
-			
-			if ( link->data == theObject ) return position;
+					
+			if ( link->data == theObject ) return 1;
 			
 			link = link->next;
 					
 		}
 		
-		return -1;
+		return 0;
+	
+	}
+	
+	
+	// returns index of data
+	
+	unsigned long indexOfObject( CLObject*	theObject )
+	{
+	
+		unsigned long index;
+		struct CLLink* link;
+		
+		// init
+		
+		index = 0;
+		link = head;
+		
+		while ( link != NULL )
+		{
+					
+			if ( link->data == theObject ) return index;
+
+			index += 1;
+			link = link->next;
+					
+		}
+		
+		return 0;
 	
 	}
 
@@ -252,14 +350,21 @@ CLObjectList:CLObject
 	void describe( )
 	{
 	
-		struct CLLink* link = head;
+		struct CLLink* link;
+		CLObject* object;
+		
+		// init
+		
+		link = head;
 		
 		while ( link != NULL )
 		{
-			CLObject* object = link->data;
+		
+			object = link->data;
 			object.describe( );
 			printf( " " );
 			link = link->next;
+			
 		}
 	
 	}

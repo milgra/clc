@@ -7,30 +7,62 @@ CLStringDataList:CLObject
 {
 
 
-	// checks if list contains string
+	// checks if string is in list
 
-	long long indexOfString ( CLString*		theString ,
-							  CLDataList*	theDataList )
+	char containsString( CLString* theString ,
+						 CLDataList* theObjectList )
 	{
 	
-		int position = -1;
+		struct CLLink* link;
+		CLString* string;
+		
+		link = theObjectList.head;
+				
+		while ( link != NULL )
+		{
 
+			string = link->data;
+
+			if ( theString.equals( string ) == 1 ) return 1;
+
+			link = link->next;
+					
+		}
+		
+		return 0;
+	
+	}
+	
+
+	// checks if list contains string
+
+	unsigned long indexOfString ( CLString*		theString ,
+							  CLDataList*	theDataList )
+	{
+
+		unsigned long index;
+		struct CLLink* link;
+		CLString* string;
+		
+		// init
+
+		index = 0;
 		struct CLLink* link = theDataList.head;
 				
 		while ( link != NULL )
 		{
 
-			position += 1;
-			
 			CLString* string = link->data;
 
-			if ( theString:equals( string ) == 1 ) return position;
+			if ( theString.equals( string ) == 1 ) return index;
+			
+			index += 1;
 			
 			link = link->next;
 
 		}
 		
-		return -1;
+		return 0;
 
 	}
 
@@ -41,13 +73,18 @@ CLStringDataList:CLObject
 										char		theCharacter )
 	{
 
-		CLDataList*	result	= CLDataList:alloc( );	// needs release
-		CLString*	word	= CLString:alloc( );	// needs release
-		
-		result.init( );
-		word.init( );
+		struct CLChar*	link;
+		CLString*		word;
+		CLDataList*		result;
+
+		// init
+
+		result:alloc( );	// needs release
+		result:init( );
+		word:alloc( );		// needs release
+		word:init( );
 	
-		struct CLChar* link = theString.head;
+		link = theString.head;
 
 		while ( link != NULL )
 		{
@@ -58,10 +95,10 @@ CLStringDataList:CLObject
 				if ( word.length > 0 )
 				{
 				
-					result.addData( word );
-					word.release( );
-					word = CLString:alloc( );
-					word.init( );
+					result:addData( word );
+					word:release( );
+					word:alloc( );
+					word:init( );
 					
 				}
 
@@ -77,9 +114,9 @@ CLStringDataList:CLObject
 
 		}
 				
-		if ( word.length > 0 ) result.addData( word );
+		if ( word.length > 0 ) result:addData( word );
 		
-		word.release( );
+		word:release( );
 	
 		return result;
 	

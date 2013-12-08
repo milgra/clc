@@ -62,8 +62,9 @@ CLString:CLObject
 	void appendCharacter ( char	theCharacter )
 	{
 
-		struct CLChar* newChar = malloc( sizeof( struct CLChar ) );
-
+		struct CLChar* newChar;
+		
+		newChar = malloc( sizeof( struct CLChar ) );
 		newChar->next		= NULL;
 		newChar->character	= theCharacter;
 	
@@ -80,11 +81,13 @@ CLString:CLObject
 
 	void appendString ( CLString* theString )
 	{
+
+		struct CLChar* link;
 	
 		if ( theString != NULL && theString.length > 0 )
 		{
 		
-			struct CLChar* link = theString.head;
+			link = theString.head;
 			
 			while ( link != NULL )
 			{
@@ -121,8 +124,13 @@ CLString:CLObject
 	void removeAllCharacters( )
 	{
 	
-		struct CLChar* link = head;
-		struct CLChar* prev = NULL;
+		struct CLChar* link;
+		struct CLChar* prev;
+		
+		// init
+
+		link = head;
+		prev = NULL;
 
 		while ( link != NULL ) 
 		{
@@ -144,10 +152,13 @@ CLString:CLObject
 	void readFile( CLString* thePath )
 	{
 
-		FILE*	filePointer;
+		char*	fileName;
 		int		character;
-		char*	fileName = thePath.cString( );	// needs release
+		FILE*	filePointer;
+		
+		// init
 
+		fileName = thePath.cString( );	// needs release
 		filePointer	= fopen( fileName , "r" );
 		
 		if ( filePointer != NULL )
@@ -177,7 +188,11 @@ CLString:CLObject
 	void readFilePointer( FILE* thePointer )
 	{
 
-		int character = getc( thePointer ) ;
+		int character;
+		
+		// init
+		
+		character = getc( thePointer ) ;
 
 		while ( character != EOF )
 		{
@@ -197,12 +212,16 @@ CLString:CLObject
 	void writeToFile( CLString* thePath )
 	{
 
+		char* fileName;
 		FILE* filePointer;
-		char* fileName = thePath.cString( );	// needs release
+		struct CLChar* link;
+		
+		// init
 
+		fileName = thePath.cString( );	// needs release
 		filePointer	= fopen( fileName , "w" );
 	
-		struct CLChar* link = head;
+		link = head;
 
 		while ( link != NULL )
 		{
@@ -223,7 +242,11 @@ CLString:CLObject
 	void writeToFilePointer( FILE* theFilePointer )
 	{
 
-		struct CLChar* link = head;
+		struct CLChar* link;
+		
+		// init
+		
+		link = head;
 
 		while ( link != NULL )
 		{
@@ -241,8 +264,14 @@ CLString:CLObject
 	CLString* stringWithLastPathComponent( )
 	{
 	
-		struct CLChar*	link   = head;
-		CLString*       result = CLString:alloc( ); result:init( );
+		struct CLChar*	link;
+		CLString*       result;
+		
+		// init
+
+		link = head;
+		result:alloc( );
+		result:init( );
 
 		while ( link != NULL )
 		{
@@ -271,13 +300,19 @@ CLString:CLObject
 	CLString* stringByRemovingExtension( )
 	{
 	
-		struct CLChar*	link	= head;
+		struct CLChar*	link;
+		CLString*		part;
+		CLString*		result;
+		char			inExtension;
 		
-		CLString*	part	= CLString:alloc( );	// needs release
-		CLString*	result	= CLString:alloc( );	// needs release
+		// init
 		
-		char inExtension = 0;
+		link = head;
+		inExtension = 0;
 		
+		part:alloc( );		// needs release
+		result:alloc( );	// needs release
+
 		part:init( );
 		result:init( );
 
@@ -312,10 +347,16 @@ CLString:CLObject
 	CLString* stringByRemovingLastPathComponent ( )
 	{
 	
-		struct CLChar*	link	= head;
+		struct CLChar* link;
+
+		CLString* 	part;
+		CLString* 	result;
 		
-		CLString* 	result	= CLString:alloc( );	// needs release
-		CLString* 	part	= CLString:alloc( );	// needs releaes
+		// init
+
+		link = head;
+		result:alloc( );	// needs release
+		part:alloc( );		// needs releaes
 
 		result:init( );
 		part:init( );
@@ -349,18 +390,20 @@ CLString:CLObject
 		return result;
 	
 	}
-
-
-	// retruns index of given string in string
-
-	long long indexOfString ( CLString* theSearchString )
+	
+	
+	// checks if string is in string
+	
+	char containsString( CLString* theString )
 	{
+	
+		struct CLChar* link;
+		struct CLChar* search;
+		
+		// init
 
-		long long result	= -1;
-		long long index		= 0;
-
-		struct CLChar* link	= head;
-		struct CLChar* search = theSearchString.head;
+		link = head;
+		search = theString.head;
 
 		while ( link != NULL )
 		{
@@ -368,7 +411,58 @@ CLString:CLObject
 			if ( link->character == search->character )
 			{
 			
-				if ( result == -1 ) result = index;
+				search = search->next;
+
+				if ( search == NULL ) return 1;
+
+			}
+			else
+			{
+				
+				search = theString.head;
+				
+			}
+
+			link 	= link->next;
+
+		}
+
+		return 0;
+	
+	}
+
+
+	// retruns index of given string in string
+
+	unsigned long indexOfString ( CLString*	theSearchString )
+	{
+	
+		char found;
+		unsigned long result;
+		unsigned long index;
+		
+		struct CLChar* link;
+		struct CLChar* search;
+		
+		// init
+
+		found	= 0;
+		result	= 0;
+		index	= 0;
+		link	= head;
+		search	= theSearchString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == search->character )
+			{
+			
+				if ( found == 0 )
+				{
+					found = 1;
+					result = index;
+				}
 
 				search = search->next;
 
@@ -378,7 +472,7 @@ CLString:CLObject
 			else 
 			{
 				
-				result = -1;					// reset index and search string
+				found = 0;
 				search = theSearchString.head;
 				
 			}
@@ -397,11 +491,16 @@ CLString:CLObject
 
 	char equals ( CLString* theStringB )
 	{
+
+		struct CLChar* linkA;
+		struct CLChar* linkB;
+		
+		// init
 	
 		if ( length != theStringB.length ) return 0;
-
-		struct CLChar* linkA = head;
-		struct CLChar* linkB = theStringB.head;
+		
+		linkA = head;
+		linkB = theStringB.head;
 
 		while ( linkA != NULL && linkB != NULL )
 		{
@@ -423,13 +522,19 @@ CLString:CLObject
 	char* cString ( )
 	{
 	
+		int		index;
+		char* 	result;
+		struct CLChar* link;
+		
+		// init
+	
 		if ( head != NULL )
 		{
 
-			struct CLChar* link = head;
 			
-			char* 	result 	= malloc( sizeof( char ) * ( length + 1 ) );
-			int		index	= 0;
+			link	= head;
+			result 	= malloc( sizeof( char ) * ( length + 1 ) );
+			index	= 0;
 
 			while ( link != NULL && link->character != 0 ) 
 			{
@@ -454,7 +559,11 @@ CLString:CLObject
 	void describe ( )
 	{
 	
-		struct CLChar* link = head;
+		struct CLChar* link;
+		
+		// init
+		
+		link = head;
 
 		while ( link != NULL ) 
 		{

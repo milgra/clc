@@ -42,9 +42,11 @@ CLDataList:CLObject
 	void addData( void* theData )
 	{
 
-		// create link
+		struct CLLink* newLink;
 
-		struct CLLink* newLink = malloc( sizeof( struct CLLink ) );
+		// create link
+				
+		newLink = malloc( sizeof( struct CLLink ) );
 
 		newLink->data = theData;
 		newLink->next = NULL;
@@ -56,6 +58,50 @@ CLDataList:CLObject
 		length	= length + 1;
 		
 	}
+	
+	
+	// adds data at given index
+	
+	void addDataAtIndex( void*		   theData ,
+						 unsigned long theIndex )
+	{
+
+		struct CLLink*	link;
+		struct CLLink*	lastLink;
+		struct CLLink*  newLink;
+		unsigned long	position;
+		
+		// init
+		
+		lastLink = NULL;
+		link	 = head;
+		position = 0;
+
+		while ( link != NULL )
+		{
+
+			if ( position == theIndex )
+			{
+
+				newLink = malloc( sizeof( struct CLLink ) );
+				newLink->data = theData;
+				newLink->next = link;
+				
+				if ( lastLink != NULL )	lastLink->next = newLink;
+				else head = newLink;
+				length = length + 1;
+				
+				return;
+			
+			}
+
+			position += 1;
+			lastLink = link;
+			link = link->next;
+
+		}
+	
+	}
 
 
 	// appends array to DataList
@@ -63,10 +109,12 @@ CLDataList:CLObject
 	void addDatasInDataList( CLDataList* theDataList )
 	{
 
+		struct CLLink* link;
+
 		if ( theDataList.length > 0 )
 		{
 
-			struct CLLink* link = theDataList.head;
+			link = theDataList.head;
 
 			while ( link != NULL )
 			{
@@ -86,9 +134,14 @@ CLDataList:CLObject
 	
 	void removeData( void* theData )
 	{
+
+		struct CLLink* link;
+		struct CLLink* prev;
+		
+		// init
 	
-		struct CLLink* link = head;
-		struct CLLink* prev = NULL;
+		link = head;
+		prev = NULL;
 		
 		while ( link != NULL )
 		{
@@ -136,8 +189,12 @@ CLDataList:CLObject
 	{
 	
 		// !!! a more optimized solution is needed
-	
-		void* data = dataAtIndex( theIndex );
+
+		void* data;
+		
+		// init
+			
+		data = dataAtIndex( theIndex );
 		if ( data != NULL ) removeData( data );
 		return data;
 	
@@ -148,9 +205,14 @@ CLDataList:CLObject
 	
 	void removeAllDatas( )
 	{
+
+		struct CLLink* link;
+		struct CLLink* prev;
 		
-		struct CLLink* link = head;
-		struct CLLink* prev = NULL;
+		// init
+		
+		link = head;
+		prev = NULL;
 
 		while ( link != NULL ) 
 		{
@@ -165,15 +227,20 @@ CLDataList:CLObject
 		length	= 0;
 	
 	}
-	
+		
 
 	// returns data at index
 
 	void* dataAtIndex( unsigned long theIndex )
 	{
 
-		struct CLLink*	link	 = head;
-		long long		position = 0;
+		struct CLLink* link;
+		unsigned long position;
+		
+		// init
+
+		link = head;
+		position = 0;
 
 		while ( link != NULL )
 		{
@@ -188,29 +255,57 @@ CLDataList:CLObject
 		return NULL;
 	
 	}
+
+
+	// check if object is in the list
 	
-	
-	// returns index of data
-	
-	long long indexOfData( void* theData )
+	char containsData( void* theData )
 	{
 	
-		long long position = -1;
-
-		struct CLLink* link = head;
+		struct CLLink* link;
+		
+		// init
+		
+		link = head;
 		
 		while ( link != NULL )
 		{
-		
-			position += 1;
-			
-			if ( link->data == theData ) return position;
+					
+			if ( link->data == theData ) return 1;
 			
 			link = link->next;
 					
 		}
 		
-		return -1;
+		return 0;
+	
+	}
+		
+	
+	// returns index of data
+	
+	unsigned long indexOfData( void* theData )
+	{
+
+		unsigned long index;
+		struct CLLink* link;
+
+		// init
+		
+		index = 0;
+		link = head;
+		
+		while ( link != NULL )
+		{
+		
+			if ( link->data == theData ) return index;
+
+			index += 1;
+			link = link->next;
+					
+		}
+		
+		return 0;
 	
 	}
 

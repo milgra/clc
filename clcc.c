@@ -28,7 +28,6 @@ For more information, please refer to <http://unlicense.org>
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
 #define kTokenMainTypeUndefined			0
@@ -87,6 +86,7 @@ struct Instance
 	struct Class*	_class;
 	void**	_components;
 };
+
 struct Main;
 struct Main_Class;
 struct CLObject;
@@ -1450,7 +1450,6 @@ void CLString_readFilePointer (struct CLString* self, FILE * thePointer )
 		CLString_appendCharacter( self, character);
 		character=getc(thePointer);
 	}
-	fclose(thePointer);
 }
 void CLString_writeToFile (struct CLString* self, struct CLString * thePath ) 
 {
@@ -4554,3 +4553,4 @@ int main( 	int			theCount ,
     Main_release( main );
     return result;
 }
+

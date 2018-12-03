@@ -1,0 +1,213 @@
+#include "CLObject.clc"
+#include "PLVector.clc"
+#include "PLMass.clc"
+#include "CLDataList.clc"
+
+#define DEPSILON 0.0001f
+
+PLSegment:CLObject
+{
+
+	float		A;
+	float		B;
+	float		C;
+	float		r;
+	float		a;
+
+	float		centerX;
+	float		centerY;
+
+	float		friction;
+
+	PLVector*	pointA;
+	PLVector*	pointB;
+
+	PLVector* 	normForce;
+	PLVector* 	paraForce;
+
+	PLVector* 	wallVector;
+	PLVector* 	forceEnding;
+	
+	
+	// initializator
+
+	void initWithVectors ( 	PLVector*	thePointA , 
+							PLVector*	thePointB )
+	{
+
+//		printf( "Segment init %i\n" , ( int ) self );
+
+		CLObject:init( self );
+				
+		thePointA.retain( );			// needs release
+		thePointB.retain( );			// needs release
+		
+		normForce = PLVector:alloc( ); 	// needs release
+		paraForce = PLVector:alloc( ); 	// needs release
+
+		wallVector  = PLVector:alloc( ); 	// needs release
+		forceEnding = PLVector:alloc( );	// needs release
+		
+		normForce:init( );
+		paraForce:init( );
+
+		wallVector:init( );
+		forceEnding:init( );
+    
+		pointA = thePointA;
+		pointB = thePointB;
+
+		// (y1 – y2)x + (x2 – x1)y + (x1y2 – x2y1) = 0
+		
+		A = pointB.y - pointA.y;
+		B = pointA.x - pointB.x;
+		C = A * pointA.x + B * pointA.y;
+		r = sqrtf( A*A + B*B );
+		a = atan2f( pointB.y - pointA.y , pointB.x - pointA.x );
+		
+		centerX = pointA.x + ( pointB.x - pointA.x ) / 2;
+		centerY = pointA.y + ( pointB.y - pointA.y ) / 2;
+		
+		friction = 1;
+    
+    }
+		
+	
+	// destructor
+	
+	void destruct ( )
+	{
+
+		//printf( "Segment destruct %i\n" , ( int ) self );
+		
+		pointA.release( );
+		pointB.release( );
+		
+		normForce.release( );
+		paraForce.release( );
+		
+		wallVector.release( );
+		forceEnding.release( );
+
+		CLObject:destruct( self );
+
+	}
+
+
+    // collides mass
+    // if collision happens, move position to collision point, 
+    // set force to the remaining size of original force
+    // if particle collides with the endpoints of two segments, partial force direction
+    // is the bisector of the two segments
+    //
+    // collision point is calculated based on the linear equation of the lines
+    // Ax + By = C       
+    // A = y2-y1
+    // B = x1-x2
+    // C = A*x1+B*y1
+
+    void collideMass ( PLMass* theMass ,
+						CLDataList* theCollidingWallsPerStep ,
+						CLDataList* theCollidingNormalsPerStep ,
+						CLDataList* theCollidingParallelsPerStep )
+    {
+
+        // resulting particle should be in center points r/2 + delta distance - bounding box checking
+		
+		float rx = fabsf( ( theMass.position.x + theMass.force.x ) - centerX ); 
+		float ry = fabsf( ( theMass.position.y + theMass.force.y ) - centerY ); 
+		
+		if ( rx < ( r/2 + 20 ) && ry < ( r/2 + 20 ) )
+		{
+		
+			// get angle to pointA of particle
+		
+			float dx = ( theMass.position.x + theMass.force.x ) - pointA.x;
+			float dy = ( theMass.position.y + theMass.force.y ) - pointA.y;
+			
+			float angle = atan2f( dy , dx );
+			
+			// position is on the wrong side of the segment
+			
+			if ( angle < a )
+			{
+					
+				//  preparing linear equation parameters of force's line
+				
+				float massA =  theMass.force.y;
+				float massB = -theMass.force.x;
+				float massC = massA * theMass.position.x + massB * theMass.position.y;
+				
+				// get determinant of the two lines
+				
+				float determinant = massA * B - massB * A;
+				
+				if ( determinant != 0 )
+				{
+
+					float hitX = ( B * massC - massB * C ) / determinant;
+					float hitY = ( massA * C - A * massC ) / determinant;
+
+					// calculating normal and parallel forces
+					
+					wallVector:setXY(	pointB.x - pointA.x , 
+										pointB.y - pointA.y );
+
+					forceEnding:setXY(	theMass.position.x + theMass.force.x - hitX ,
+										theMass.position.y + theMass.force.y - hitY );
+										
+					if ( forceEnding.length < DEPSILON )
+					{
+						forceEnding.set( theMass.force );
+					}
+
+					float normLength = sinf( theMass.force.angle - wallVector.angle ) * theMass.force.length;
+					float paraLength = cosf( theMass.force.angle - wallVector.angle ) * theMass.force.length;
+					
+					normForce:setXY(	sinf( wallVector.angle ) * normLength ,
+										cosf( wallVector.angle ) * normLength * -1 );
+											
+					paraForce:setXY( 	cosf( wallVector.angle ) * paraLength ,
+										sinf( wallVector.angle ) * paraLength );
+					
+					// resizing forces to forceEnding's length
+					
+					normForce:multiply( forceEnding.length / theMass.force.length );
+					paraForce:multiply( forceEnding.length / theMass.force.length );
+					
+					theCollidingWallsPerStep:addData( self );
+					theCollidingNormalsPerStep:addData( normForce );
+					theCollidingParallelsPerStep:addData( paraForce );
+					
+					PLVector:setXY( theMass.collision , hitX , hitY );
+					theMass.hadCollision = 1;
+									
+				}
+			
+			}
+		
+		}
+    
+    }
+    
+    
+    // slides mass on wall
+    
+    void slideMass( PLMass* theMass )
+    {
+
+		wallVector:setXY(	pointB.x - pointA.x ,
+							pointB.y - pointA.y );
+
+        float paraLength = cos( theMass.force.angle - wallVector.angle ) * theMass.force.length;
+		
+		paraForce:setXY(	cosf( wallVector.angle ) * paraLength ,
+							sinf( wallVector.angle ) * paraLength );
+    
+        // set paraforce as mass force
+		
+       PLVector:set( theMass.force , paraForce );
+    
+    }
+	
+}

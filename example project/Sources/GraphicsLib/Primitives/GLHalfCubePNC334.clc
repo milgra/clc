@@ -1,0 +1,154 @@
+#import "GLDrawablePNC334.clc"
+
+
+GLHalfCubePNC334:GLDrawablePNC334
+{
+
+	// constructor
+	
+	
+	char isLeftSided;
+	char isRightSided;
+	
+
+	void init( )
+	{
+	
+		GLDrawablePNC334:init( self );
+
+		texture 		= 0;
+		mode 			= GL_TRIANGLES;
+		
+		isLeftSided		= 1;
+		isRightSided	= 0;
+		
+		indexCount 		= 18;
+		vertexCount 	= 12;
+		
+		vertexesSize 	= sizeof( GLfloat ) * 10 * vertexCount;
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+
+		vertexes 		= malloc( vertexesSize );
+		indexes 		= malloc( indexesSize );
+		
+		const GLfloat constva[] =
+		{
+
+		
+			//X   Y   Z			NX	NY	NZ			R	G	B	A
+			
+			//    2       1   2    front face
+			// y
+			//  x 1   3       3
+
+			//    2        1    2   bottom face
+			// z
+			//  x 1   3         3
+			
+			//      2       1   2   left face
+			// y    
+			//  z   1   3       3
+			 
+			0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			
+			0.0f, 0.0f, 0.0f,   0.0f,-1.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 0.0f,-1.0f,   0.0f,-1.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 0.0f,   0.0f,-1.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f,-1.0f,   0.0f,-1.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			
+			0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 0.0f,-1.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f,-1.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+					
+		};
+
+		// index array
+		
+		const GLushort constia[] =
+		{ 
+		
+			0 , 2 , 1 , 1 , 2 , 3 ,
+			4 , 5 , 6 , 5 , 7 , 6 ,
+			8 , 9 , 10 , 9 , 11 , 10
+			
+		};
+		
+		memcpy( vertexes , constva , vertexesSize );			
+		memcpy( indexes  , constia , indexesSize );			
+
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		GLDrawablePNC334:destruct( self );
+
+	}
+	
+	
+	// shows only left faces
+	
+	void setLeftSided( )
+	{
+	
+		isLeftSided  = 1;
+		isRightSided = 0;
+	
+		vertexes[ 80 ]  -= sx;
+		vertexes[ 90 ]  -= sx;
+		vertexes[ 100 ] -= sx;
+		vertexes[ 110 ] -= sx;
+
+		// index array
+		
+		const GLushort constia[] =
+		{ 
+		
+			0 , 2 , 1 , 1 , 2 , 3 ,
+			4 , 5 , 6 , 5 , 7 , 6 ,
+			8 , 9 , 10 , 9 , 11 , 10
+			
+		};
+
+		memcpy( indexes  , constia , indexesSize );			
+	
+	}
+	
+	
+	// shows only right faces
+	
+	void setRightSided( )
+	{
+
+		isLeftSided  = 0;
+		isRightSided = 1;
+	
+		vertexes[ 80 ]  += sx;
+		vertexes[ 90 ]  += sx;
+		vertexes[ 100 ] += sx;
+		vertexes[ 110 ] += sx;
+
+		// index array
+		
+		const GLushort constia[] =
+		{ 
+		
+			0 , 2 , 1 , 1 , 2 , 3 ,
+			4 , 5 , 6 , 5 , 7 , 6 ,
+			8 , 10 , 9 , 9 , 10 , 11
+			
+		};
+
+		memcpy( indexes  , constia , indexesSize );			
+			
+	}	
+
+}

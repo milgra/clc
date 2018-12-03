@@ -1,0 +1,57 @@
+#include "CLDataList.clc"
+#include "CLObject.clc"
+
+
+GLVertexBlock:CLObject
+{
+
+	GLuint 			mode;
+	GLuint 			texture;
+
+	GLushort* 		indexes;
+	GLsizei   		indexCount;
+	
+	long			oldIndexesSize;
+	long	  		indexesSize;
+	
+	GLsizei			vertexCount;
+	long			vertexesSize;
+	
+	CLDataList* 	drawables;
+	
+	
+	void init( )
+	{
+	
+		// printf( "\nGLVertexBlock init" );
+	
+		CLObject:init( self );
+		
+		indexes = NULL;
+		drawables = NULL;
+	
+	}
+	
+	
+	void destruct( )
+	{
+
+		// printf( "\nGLVertexBlock destruct" );
+	
+		CLObject:destruct( self );		
+
+		if ( indexes   != NULL ) free( indexes );
+		if ( drawables != NULL ) drawables.release( );
+	
+	}
+
+	// describes object
+	
+	void describe ( )
+	{
+
+		printf( "\nmode: %u texture: %u indexCount %i vertexCount %i" , mode , texture , indexCount , vertexCount );
+		
+	}
+
+}

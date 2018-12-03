@@ -1,0 +1,155 @@
+#include "CLObject.clc"
+#include "CLString.clc"
+#include "CLObjectList.clc"
+
+
+ClassElements:CLObject
+{
+
+	CLString*	  className;
+	
+	CLObjectList* usedClassNamesList;
+	CLObjectList* unusedClassNamesList;
+	
+	CLObjectList* memberNamesList;
+	CLObjectList* memberTokensList;
+
+	CLObjectList* methodNamesList;
+	CLObjectList* methodTokensList;
+
+	CLObjectList* settingNamesList;
+	CLObjectList* settingTokensList;
+
+
+	// constructor
+
+	void init( CLString* theName )
+	{
+
+		CLObject:init( self );
+
+		className = theName;
+		className:retain( );
+		
+		memberNamesList:alloc( );
+		methodNamesList:alloc( );
+		settingNamesList:alloc( );
+		memberTokensList:alloc( );
+		methodTokensList:alloc( );
+		settingTokensList:alloc( );
+		usedClassNamesList:alloc( );		
+		unusedClassNamesList:alloc( );
+		
+		memberNamesList:init( );
+		methodNamesList:init( );
+		settingNamesList:init( );
+		memberTokensList:init( );
+		methodTokensList:init( );
+		settingTokensList:init( );
+        usedClassNamesList:init( );
+        unusedClassNamesList:init( );
+		 	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		className.release( );
+				
+		memberNamesList:release( );
+		methodNamesList:release( );
+		settingNamesList:release( );
+		memberTokensList:release( );
+		methodTokensList:release( );
+		settingTokensList:release( );
+		usedClassNamesList:release( );
+		unusedClassNamesList:release( );
+
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	// describe elements
+	
+	void describe( )
+	{
+
+		struct CLLink* ids;
+		struct CLLink* line;
+		struct CLLink* names;
+		struct CLLink* members;
+		struct CLLink* methods;
+		struct CLLink* settings;
+
+		CLString*      name;
+		CLObjectList*  lines;
+	
+		printf( "\nClassName :" ); 
+		className.describe( );
+
+		printf( "\nusedClassMames :" ); 
+		usedClassNamesList.describe( );
+
+		printf( "\nunusedClassMames :" );
+		unusedClassNamesList.describe( );
+        
+		printf( "\n\nSettings :\n\n" );
+		settings = settingTokensList.head;
+		while ( settings != NULL )
+		{
+			CLObjectList* chain = ( CLObjectList* ) settings->data;
+			chain.describe( ); printf( "\n" );
+			settings = settings->next;
+		}
+        
+		printf( "\nMembers :\n\n" );
+		names = memberNamesList.head;
+		members = memberTokensList.head;
+		while ( names != NULL )
+		{
+			name	= ( CLString* ) names->data;
+			lines	= ( CLObjectList* ) members->data;
+            
+			name.describe( ); printf( " : " );
+			lines.describe( );
+            
+			printf( "\n" );
+			
+			names = names->next;
+			members = members->next;
+		}
+        
+		printf( "\nMethods : \n" );
+		ids 	 = methodNamesList.head;
+		methods = methodTokensList.head;
+		while ( ids != NULL )
+		{
+			name  = ( CLString* ) ids->data;
+			lines = ( CLObjectList* ) methods->data;
+			
+			printf( "\nMETHOD " ); name.describe( ); printf( ":\n" );
+			
+			line = lines.head;
+			
+			while ( line != NULL )
+			{
+				CLObjectList* lineList = ( CLObjectList* ) line->data;
+				lineList.describe( );
+				printf( "\n" );
+				line = line->next;
+			}
+            
+			printf( "\n" );
+            
+			ids = ids->next;
+			methods = methods->next;
+			
+		}
+	
+	}
+
+}

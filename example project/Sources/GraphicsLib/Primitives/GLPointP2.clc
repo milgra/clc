@@ -1,0 +1,35 @@
+#include "GLDrawable.clc"
+
+
+GLPointP2:GLDrawable
+{
+
+	void initWithPoints( GLfloat theX , GLfloat theY )
+	{
+	
+		GLDrawable:init( self );
+	
+		mode 			= GL_POINTS;
+		texture 		= 0;
+		
+		// alloc
+		
+		indexCount 		= 1;
+		vertexCount 	= 1;
+
+		vertexesSize 	= sizeof( GLfloat ) * 2 * vertexCount;
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+
+		vertexes 		= malloc( vertexesSize );
+		indexes 		= malloc( indexesSize );
+
+		vertexes[ 0 ] 	= theX;
+		vertexes[ 1 ] 	= theY;
+
+		// index array
+		
+		indexes[ 0 ] 	= 0;
+	
+	}
+
+}

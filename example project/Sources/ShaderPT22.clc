@@ -1,0 +1,89 @@
+#include "CLObject.clc"
+#include "GLShader.clc"
+
+
+ShaderPT22:CLObject
+{
+
+	GLShader* shader;
+	
+	
+	// constructor
+
+	void init ( )
+	{
+
+		printf( "\nShaderPT22 init" );
+
+		CLObject:init( self );
+	
+		#ifdef OSX				
+		const char* TEXTURE_VERTEX =
+			"attribute   vec4 positionVector;\n"
+			"attribute   vec2 textureVector;\n"
+			"varying 	 vec2 textureVectorOut;\n"
+			"uniform     mat4 projectionMatrix;\n"
+			"void main ( )\n"
+			"{\n"
+			"gl_Position     = projectionMatrix * positionVector;\n"
+			"textureVectorOut = textureVector;\n"
+			"}\n";
+		const char* TEXTURE_FRAGMENT =
+			"varying vec2 textureVectorOut;\n"
+			"uniform sampler2D texture;\n"
+			"void main ( )\n"
+			"{\n"
+			"gl_FragColor = texture2D( texture , textureVectorOut);\n"
+			"}\n";
+		#endif
+				
+		#if defined(IOS)
+		const char* TEXTURE_VERTEX_ES =
+			"attribute   vec4 positionVector;\n"
+			"attribute   vec2 textureVector;\n"
+			"varying 	 lowp vec2 textureVectorOut;\n"
+			"uniform     mat4 projectionMatrix;\n"
+			"void main ( )\n"
+			"{\n"
+			"gl_Position     = projectionMatrix * positionVector;\n"
+			"textureVectorOut = textureVector;\n"
+			"}\n";
+		const char* TEXTURE_FRAGMENT_ES =
+			"varying lowp vec4 varyingColor;\n"
+		    "void main( )\n"
+    		"{\n"
+			"gl_FragColor = vec4( 0.0 , 0.0 , 0.0 , 1.0 );\n"
+		    "}\n";
+		#endif
+			
+		shader:alloc( );
+		shader:init( "TextureShader" );
+		#ifdef OSX
+		shader:addVertexShader( TEXTURE_VERTEX );
+		shader:addFragmentShader( TEXTURE_FRAGMENT );
+		#endif
+		#if defined(IOS) || defined(TIZ)
+		shader:addVertexShader( TEXTURE_VERTEX_ES );
+		shader:addFragmentShader( TEXTURE_FRAGMENT_ES );
+		#endif
+		shader:addAttributeLocation( 0 , 2 , "positionVector" );
+		shader:addAttributeLocation( 1 , 2 , "textureVector" );
+		shader:addUniformIdentifier( "projectionMatrix" );
+		shader:addUniformIdentifier( "texture" );
+		shader:link( );
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		printf( "\nShaderPT22 destruct" );
+	
+		shader.release( );
+		CLObject:destruct( self );
+	
+	}
+
+}

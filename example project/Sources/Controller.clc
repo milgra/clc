@@ -1,0 +1,395 @@
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#include <OpenGL/OpenGL.h>
+#include <GLKit/GLKMath.h>
+
+#include "PLMass.clc"
+#include "PLSpacer.clc"
+#include "PLSegment.clc"
+
+#include "Scene.clc"
+#include "ScenePit.clc"
+#include "SceneBox.clc"
+#include "SceneSlope.clc"
+#include "SceneParticle.clc"
+
+#include "GLPointP2.clc"
+#include "GLRectPT22.clc"
+#include "ShaderP2.clc"
+#include "GLSegment.clc"
+#include "ShaderPT22.clc"
+#incldue "PLUniverse.clc"
+#include "CLDataList.clc"
+#include "GLTexturePixelText.clc"
+#include "GLDrawable.clc"
+#include "GLVertexBuffer.clc"
+
+#define kScenePlayXOffset -200.0
+
+
+Controller
+{
+
+	float 				contextWidth;
+	float				contextHeight;
+
+	ShaderP2*			simpleShader;
+	ShaderPT22*			textureShader;
+	
+	GLVertexBuffer*		simpleVertexBuffer;
+	GLVertexBuffer*		textureVertexBuffer;
+	
+	GLint				simplePMLocation;
+	GLint				texturePMLocation;
+
+	GLKMatrix4			projectionMatrix;
+	
+	char				showButtons;
+	CLDataList*			buttons;
+	CLDataList*			textures;
+	PLUniverse*			universe;
+	Scene*				scene;
+
+
+	// constructor
+
+	void init(	float	theContextWidth ,
+				float 	theContextHeight )
+	{
+	
+		showButtons		= 0;
+
+		contextWidth 	= theContextWidth;
+		contextHeight 	= theContextHeight;
+	
+		simpleShader:alloc( );
+		simpleShader:init( );
+		
+		textureShader:alloc( );
+		textureShader:init( );
+		
+		simpleVertexBuffer:alloc( );
+		simpleVertexBuffer:init( );
+		
+		textureVertexBuffer:alloc( );
+		textureVertexBuffer:init( );
+		
+		simplePMLocation = simpleShader.shader.getUniformLocation( "projectionMatrix" );
+		texturePMLocation = textureShader.shader.getUniformLocation( "projectionMatrix" );
+		
+		glEnable( GL_POINTS );
+		glPointSize( 6 );
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA );
+		glActiveTexture( GL_TEXTURE0 );
+
+        glClearColor( .65 , .65 , .65 , 1.0 );
+		
+		projectionMatrix = GLKMatrix4MakeOrtho( 0.0 , 900.0 , 0.0 , 600.0 , -1.0 , 1.0 );
+		
+		setupScene( );
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		if ( scene != NULL )
+		{
+		
+			removeScene( );
+			scene.release( );
+			scene = NULL;
+
+		}
+		
+		universe.release( );
+
+        for ( void* data : buttons )
+        {
+            GLRectPT22* buttonRect = data;
+            textureVertexBuffer:removeDrawable( ( GLDrawable* ) buttonRect );
+            buttonRect.release( );
+        }
+		
+		buttons.release( );
+        
+        for ( void* data : textures )
+        {
+		
+			GLTexturePixelText* texture = data;
+			texture.release( );
+
+		}
+		
+		textures.release( );
+		
+		simpleVertexBuffer.release( );
+		textureVertexBuffer.release( );
+		
+		simpleShader.release( );
+		textureShader.release( );
+	
+	
+	}
+
+
+	// renders scene
+
+	void render ( )
+    {
+	
+		// printf( "\nController render" );
+	
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		
+		simpleVertexBuffer:bindBuffer( );
+		simpleShader.shader.activate( );
+
+		// update uniform attributes for shader programs
+
+		glUniformMatrix4fv( simplePMLocation , 
+							1 ,
+							0 ,
+							projectionMatrix.m );
+							
+		simpleVertexBuffer:drawBuffer( );
+
+		if ( showButtons == 1 )
+		{
+		
+			textureVertexBuffer:bindBuffer( );
+			textureShader.shader.activate( );
+
+			// update uniform attributes for shader programs
+
+			glUniformMatrix4fv( texturePMLocation , 
+								1 ,
+								0 ,
+								projectionMatrix.m );
+			
+			textureVertexBuffer:drawBuffer( );
+			
+		}
+		
+	}
+
+
+	// updates scene
+
+	void updateScene( )
+	{
+	
+		universe:update( );
+		simpleVertexBuffer:updateBuffers( );
+	
+	}
+
+		
+	// setup scene
+	
+	void setupScene( )
+	{
+	
+		// create buttons
+
+		scene 		= NULL;
+		showButtons = 1;
+
+		buttons:alloc( );
+		buttons:init( );
+
+		textures:alloc( );
+		textures:init( );
+		
+		universe:alloc( );
+		universe:init( );
+				
+		float freeX = ( contextWidth  - 2 * 256 - 50 ) / 2;
+		float freeY = ( contextHeight - 2 * 256 - 50 ) / 2;
+		
+		GLTexturePixelText* buttonATexture = GLTexturePixelText:alloc( );
+		GLTexturePixelText* buttonBTexture = GLTexturePixelText:alloc( );
+		GLTexturePixelText* buttonCTexture = GLTexturePixelText:alloc( );
+		GLTexturePixelText* buttonDTexture = GLTexturePixelText:alloc( );
+
+		buttonATexture:init( "PIT" , 256 , 256 , 3 );
+		buttonBTexture:init( "PARTICLE" , 256 , 256 , 3 );
+		buttonCTexture:init( "BOX" , 256 , 256 , 3 );
+		buttonDTexture:init( "SLOPE" , 256 , 256 , 3 );
+		
+		GLRectPT22* buttonARect = GLRectPT22:alloc( );
+		GLRectPT22* buttonBRect = GLRectPT22:alloc( );
+		GLRectPT22* buttonCRect = GLRectPT22:alloc( );
+		GLRectPT22* buttonDRect = GLRectPT22:alloc( );
+		
+		buttonARect.init( buttonATexture.glid );
+		buttonBRect.init( buttonBTexture.glid );
+		buttonCRect.init( buttonCTexture.glid );
+		buttonDRect.init( buttonDTexture.glid );
+
+		buttonARect.flipTexture( );
+		buttonBRect.flipTexture( );
+		buttonCRect.flipTexture( );
+		buttonDRect.flipTexture( );
+		
+		buttonARect.scale( 256.0 , 256.0 );
+		buttonBRect.scale( 256.0 , 256.0 );
+		buttonCRect.scale( 256.0 , 256.0 );
+		buttonDRect.scale( 256.0 , 256.0 );
+		
+		buttonARect.move( freeX , freeY);
+		buttonBRect.move( freeX , freeY + 256 + 50 );
+		buttonCRect.move( freeX + 256 + 50 , freeY );
+		buttonDRect.move( freeX + 256 + 50 , freeY + 256 + 50 );
+
+		buttons:addData( buttonARect );
+		buttons:addData( buttonBRect );
+		buttons:addData( buttonCRect );
+		buttons:addData( buttonDRect );
+		
+		textures:addData( buttonATexture );
+		textures:addData( buttonBTexture );
+		textures:addData( buttonCTexture );
+		textures:addData( buttonDTexture );
+		
+		textureVertexBuffer:addDrawable( ( GLDrawable* ) buttonARect );
+		textureVertexBuffer:addDrawable( ( GLDrawable* ) buttonBRect );
+		textureVertexBuffer:addDrawable( ( GLDrawable* ) buttonCRect );
+		textureVertexBuffer:addDrawable( ( GLDrawable* ) buttonDRect );
+		
+		textureVertexBuffer:updateBuffers( );
+		
+		openSceneWithId( 1 );
+		
+	}
+	
+	
+	// adds scene with specific id
+	
+	void openSceneWithId( unsigned char theId )
+	{
+
+		if ( scene != NULL )
+		{
+
+			removeScene( );
+			scene.release( );
+			scene = NULL;
+		
+		}
+		
+		void* sceneObj = NULL;
+
+		if ( theId == 0 ) sceneObj = ScenePit:alloc( ); else
+		if ( theId == 1 ) sceneObj = SceneParticle:alloc( ); else
+		if ( theId == 2 ) sceneObj = SceneBox:alloc( ); else
+		if ( theId == 3 ) sceneObj = SceneSlope:alloc( );
+		
+		scene = ( Scene* ) sceneObj;
+		scene.initWithDimensions( contextWidth , contextHeight );
+		
+		addScene( );
+			
+	}
+	
+	
+	// adds scene to vertexbuffer and universe
+	
+	void addScene( )
+	{
+    
+        for ( void* data : scene.glPoints )
+        {
+			GLPointP2* glPoint = data;
+			simpleVertexBuffer:addDrawable( ( GLDrawable* ) glPoint );
+        }
+	
+        for ( void* data : scene.glSegments )
+        {
+			GLSegment* glSegment = data;
+			simpleVertexBuffer:addDrawable( ( GLDrawable* ) glSegment );
+		}
+
+        for ( void* data : scene.masses )
+        {
+			PLMass* mass = data;
+			universe:addMass( mass );
+		}
+
+        for ( void* data : scene.segments )
+        {
+			PLSegment* wall = data;
+			universe:addWall( wall );
+		}
+
+        for ( void* data : scene.spacers )
+        {
+			PLSpacer* spacer = data;
+			universe:addSpacer( spacer );
+		}
+
+	}
+
+
+	// removes scene to vertexbuffer and universe
+	
+	void removeScene( )
+	{
+	
+        for ( void* data : scene.glPoints )
+        {
+			GLPointP2* glPoint = data;
+			simpleVertexBuffer:removeDrawable( ( GLDrawable* ) glPoint );
+		}
+		
+        for ( void* data : scene.glSegments )
+        {
+			GLSegment* glSegment = data;
+			simpleVertexBuffer:removeDrawable( ( GLDrawable* ) glSegment );
+		}
+
+        for ( void* data : scene.masses )
+        {
+			PLMass* mass = data;
+			universe:removeMass( mass );
+		}
+
+        for ( void* data : scene.segments )
+        {
+			PLSegment* wall = data;
+			universe:removeWall( wall );
+		}
+
+        for ( void* data : scene.spacers )
+        {
+			PLSpacer* spacer = data;
+			universe:removeSpacer( spacer );
+		}
+
+	}
+	
+	
+	// button pressed event
+	
+	void buttonPressed (	float theX ,
+							float theY )
+	{
+	
+		struct CLLink* link  = buttons.head;
+		unsigned char  index = 0;
+		
+		while ( link != NULL )
+		{
+			GLRectPT22* buttonRect = link->data;
+			if ( buttonRect.contains( theX , theY ) ) openSceneWithId( index );
+			index++;
+			link = link->next;
+		}		
+	
+	}
+
+}

@@ -1,0 +1,437 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "CLObject.clc"
+#include "GLDrawable.clc"
+#include "CLDataList.clc"
+#include "GLVertexBlock.clc"
+
+
+
+GLVertexBuffer:CLObject
+{
+	
+	// drawable and vertex buffer related
+
+	GLfloat* 		data;
+	GLuint			buffer;
+	CLDataList*	blocks;
+	long			oldSize;
+	char			changed;
+	
+
+	// constructor
+
+	void init ( )
+	{
+	
+		// printf( "\nGLVertexBuffer init" );
+	
+		CLObject:init( self );
+		
+		// drawable and buffer related
+
+		data	= NULL;		
+		buffer	= 0;        
+		blocks 	= CLDataList:alloc( );
+		oldSize = 0;
+		changed = 0;
+				
+		// init blocks
+
+		blocks:init( );
+		
+		// generate vertex buffer
+
+		glGenBuffers ( 1 , &(buffer) );
+
+	}
+
+
+	// destructor
+	
+	void destruct ( )
+	{
+
+		// printf( "\nGLVertexBuffer destruct" );
+			
+		// releaser buffer
+		
+		if ( buffer != 0 ) glDeleteBuffers( 1 , &(buffer) );
+		
+		// release data
+		
+		if ( data != NULL ) free( data );
+
+		// release blocks
+		
+		struct CLLink* link = blocks.head;
+		
+		while ( link != NULL )
+		{
+		
+			GLVertexBlock* oneBlock = link->data;
+			
+			oneBlock.release( );
+		
+			link = link->next;
+		
+		}
+
+		blocks.release( );
+
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	// binds buffer, needed before shader usage
+	
+	void bindBuffer ( )
+	{
+
+		// bind vertex buffer
+
+		glBindBuffer( GL_ARRAY_BUFFER , buffer );
+		
+		if ( changed == 1 ) updateBuffers( );
+	
+	}
+
+
+	// renders vertex buffer
+	
+	void drawBuffer ( )
+	{
+
+		// iterate through render blocks
+
+		struct CLLink* blockLink = blocks.head;
+		
+		while ( blockLink != NULL )
+		{
+		
+			GLVertexBlock* renderBlock = blockLink->data;
+			
+			if ( renderBlock.drawables.length > 0 )
+			{
+
+				glBindTexture( GL_TEXTURE_2D , renderBlock.texture );
+				
+				glDrawElements( renderBlock.mode , 
+								renderBlock.indexCount ,
+								GL_UNSIGNED_SHORT ,
+								renderBlock.indexes );
+								
+				// printf( "\nRENDERING" ); renderBlock.describe( ); printf( "\n" );
+				// for ( int index = 0 ; index < 3 ; index++ ) printf( "%f " , data[ index ] );
+				
+			}
+									
+			blockLink = blockLink->next;
+			
+		}
+	
+	}
+
+
+	// adds drawable
+
+	void addDrawables( CLDataList* theDrawables )
+	{
+	
+		struct CLLink* link = theDrawables.head;
+		
+		while ( link != NULL )
+		{
+			addDrawable( link->data );
+			link = link->next;
+		}
+	
+	}
+
+
+	// adds drawable
+
+	void addDrawable( GLDrawable* theDrawable )
+	{
+	
+		// printf( "\nGLRenderer addDrawable %i blocks %lli" , theDrawable.indexCount , blocks.length );
+		// printf( "\nGLRenderer addDrawable retainCount %li" , theDrawable.retainCount );
+		// printf( "\nadd drawable address %lx components %lx components0 %lx" , ( long ) theDrawable , ( long ) theDrawable->_components , ( long ) theDrawable->_components[0] );
+		
+		changed = 1;
+		
+		// check block availability
+
+		struct CLLink* link 	 = blocks.head;
+		GLVertexBlock* blockPick = NULL;
+
+		while ( link != NULL )
+		{
+
+			GLVertexBlock* block = link->data;
+			
+			if ( theDrawable.texture == block.texture &&
+				 theDrawable.mode 	 == block.mode )
+			{
+				blockPick = block;
+				break;
+			}
+		
+			link = link->next;
+
+		}
+		
+		// if no block with given structure present yet
+
+		// if ( blockPick == NULL ) printf( "\nblock for structure not found" );
+		if ( blockPick == NULL )
+		{
+		
+			blockPick				= GLVertexBlock:alloc( ); blockPick:init( );
+			CLDataList* drawables  = CLDataList:alloc( ); drawables:init( );
+			
+			blockPick.mode 			= theDrawable.mode;
+			blockPick.texture 		= theDrawable.texture;
+			blockPick.drawables 	= drawables;
+			blockPick.indexCount	= 0;
+			blockPick.indexesSize 	= 0;
+			blockPick.oldIndexesSize= 0;
+			blockPick.vertexCount	= 0;
+			blockPick.vertexesSize 	= 0;
+			blockPick.indexes		= NULL;
+
+			blocks.addData( blockPick );
+
+		}
+
+		// store drawable
+		
+		blockPick.drawables.addData( theDrawable );
+
+		blockPick.indexCount   += theDrawable.indexCount;
+		blockPick.indexesSize  += theDrawable.indexesSize;
+		blockPick.vertexCount  += theDrawable.vertexCount;
+		blockPick.vertexesSize += theDrawable.vertexesSize;
+
+		// retain ownership
+
+		theDrawable.retain( );
+
+		// printf( "\nblockPick" ); blockPick.describe( );
+
+	}
+
+
+	// adds drawable
+
+	void removeDrawables( CLDataList* theDrawables )
+	{
+	
+		struct CLLink* link = theDrawables.head;
+		
+		while ( link != NULL )
+		{
+			removeDrawable( link->data );
+			link = link->next;
+		}
+	
+	}
+
+
+	// removes drawable
+
+	void removeDrawable( GLDrawable* theDrawable )
+	{
+
+		// printf( "\nGLRenderer removeDrawable retainCount %li" , theDrawable.retainCount );
+		
+		changed = 1;
+
+		// check block availability
+		
+		struct CLLink* link = blocks.head;
+		GLVertexBlock* blockPick = NULL;
+
+		while ( link != NULL )
+		{
+		
+			GLVertexBlock* block = link->data;
+			
+			if ( theDrawable.texture == block.texture &&
+				 theDrawable.mode 	 == block.mode )
+			{
+				blockPick = block;
+				break;
+			}
+
+			link = link->next;
+
+		}
+		
+		// if no block with given structure present yet
+
+		// if ( blockPick == NULL ) printf( "\nblock for structure not found" );
+		if ( blockPick == NULL ) return;
+		
+		// delete drawable
+		
+		char contains = blockPick.drawables.containsData( theDrawable );
+		
+		if ( contains == 1 )
+		{
+		
+			blockPick.drawables.removeData( theDrawable );
+
+			blockPick.indexCount   -= theDrawable.indexCount;
+			blockPick.indexesSize  -= theDrawable.indexesSize;
+			blockPick.vertexCount  -= theDrawable.vertexCount;
+			blockPick.vertexesSize -= theDrawable.vertexesSize;
+		
+			// release ownership if it was amongst our drawables
+		
+			theDrawable.release( );
+
+		}
+
+	}
+	
+		
+	// update client side buffers and upload them
+	
+	void updateBuffers( )
+	{
+	
+		// printf( "\nGLRenderer updateBuffers %lli" , blocks.length );
+	
+		// count new vertex count and size
+
+		long vertexesSize = 0;
+		
+		struct CLLink* blockLink = blocks.head;
+		
+		while ( blockLink != NULL )
+		{
+		
+			GLVertexBlock* renderBlock = blockLink->data;
+			vertexesSize += renderBlock.vertexesSize;
+			blockLink = blockLink->next;
+			
+		}
+		
+		if ( vertexesSize > 0 )
+		{
+
+			// alloc or realloc client side buffer
+			
+			if ( vertexesSize != oldSize )
+			{
+			
+				if ( data == NULL ) data = malloc( vertexesSize );
+				else data = realloc( data , vertexesSize );
+				
+				oldSize = vertexesSize;
+				
+			}
+			
+			// fill up client side buffers
+			
+			int 	 indexOffset = 0;
+			GLfloat* flatData = data;
+			
+			blockLink = blocks.head;
+			
+			while ( blockLink != NULL )
+			{
+
+				GLVertexBlock* renderBlock = blockLink->data;
+				
+				if ( renderBlock.drawables.length > 0 )
+				{
+
+					int renderBlockIndex = 0;
+					
+					struct CLLink* drawableLink = renderBlock.drawables.head;
+					
+					if ( renderBlock.indexesSize != renderBlock.oldIndexesSize )
+					{
+										
+						if ( renderBlock.indexes == NULL ) renderBlock.indexes = malloc( renderBlock.indexesSize );
+						else renderBlock.indexes = realloc( renderBlock.indexes , renderBlock.indexesSize );
+						
+						renderBlock.oldIndexesSize = renderBlock.indexesSize;
+					
+					}
+
+					// printf( "\nALLOCATING INDICES %lli\n" , renderBlock.indexesSize );
+					
+					// iterate through drawables
+
+					while ( drawableLink != NULL )
+					{
+
+						GLDrawable* drawable = drawableLink->data;
+
+						// copy vertex data of drawable into corresponding flat array
+						
+						memcpy( flatData , drawable.vertexes , drawable.vertexesSize );
+							
+						// increase flat array pointer with vertexsize
+						
+						flatData = ( GLfloat* )( ( char* ) flatData + drawable.vertexesSize );
+						
+						// iterate through indexes of drawable, increase and store them in indexes array
+
+						for ( int index = 0 ;
+								  index < drawable.indexCount ; 
+								  index++ )
+						{
+						
+							renderBlock.indexes[ renderBlockIndex++ ] = indexOffset + drawable.indexes[ index ];
+
+						}
+						
+						// increase index count
+
+						indexOffset += drawable.vertexCount;
+						drawableLink = drawableLink->next;
+						
+					}
+				
+				}
+							
+				blockLink = blockLink->next;
+				
+			}
+
+			// upload array
+			
+			glBindBuffer( GL_ARRAY_BUFFER , buffer );
+
+			glBufferData( GL_ARRAY_BUFFER , 
+						  vertexesSize , 
+						  data , 
+						  GL_DYNAMIC_DRAW );
+						  
+			// printf( "\nvertex buffer uploaded %i size %li" , buffer , vertexesSize );
+			
+		}
+		else
+		{
+
+			// free up memory on GPU
+			
+			glBindBuffer( GL_ARRAY_BUFFER , buffer );
+
+			glBufferData( GL_ARRAY_BUFFER , 
+						  0 , 
+						  NULL , 
+						  GL_DYNAMIC_DRAW );
+		
+		}
+		
+		changed = 0;
+			
+	}
+		
+}

@@ -1,0 +1,89 @@
+#include "GLDrawablePT22.clc"
+
+
+GLRectPT22:GLDrawablePT22
+{
+
+
+	// constructor
+	
+	void init ( GLuint theTexture )
+	{
+	
+		// printf( "\nGLRectPT22 init %f %f %u" , theWidth , theHeight , theTexture );
+
+		GLDrawablePT22:init( self );
+
+		mode 		= GL_TRIANGLE_STRIP;
+		texture 	= theTexture;
+		
+		// alloc
+		
+		indexCount 		= 4;
+		vertexCount 	= 4;
+		
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+		vertexesSize 	= sizeof( GLfloat ) * 4 * vertexCount;
+
+		indexes 		= malloc( indexesSize );
+		vertexes 		= malloc( vertexesSize );
+
+		const GLfloat constva[] =
+		{
+		
+			0.0 , 0.0 , 0.0 , 0.0 ,
+			0.0 , 1.0 , 0.0 , 1.0 ,
+			1.0 , 0.0 , 1.0 , 0.0 ,
+			1.0 , 1.0 , 1.0 , 1.0
+		
+		};
+
+		const GLushort constia[] =
+		{ 
+			0 , 2 , 1 , 3
+		};
+
+		memcpy( vertexes , constva , vertexesSize );			
+		memcpy( indexes  , constia , indexesSize );			
+	
+	}
+
+
+	// flips texture coordinates
+	
+	void flipTexture(  )
+	{
+	
+		float temp = vertexes[ 3 ];
+
+		vertexes[ 3 ] = vertexes[ 7 ];
+		vertexes[ 7 ] = temp;
+		
+		temp = vertexes[ 11 ];
+		
+		vertexes[ 11 ] = vertexes[ 15 ];
+		vertexes[ 15 ] = temp;	
+		
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		GLDrawablePT22:destruct( self  );
+
+	}
+	
+	
+	// check if square contains a 3d point	
+	
+	char contains( float theX , float theY )
+	{
+
+		return ( theX >= dx && theX <= dx + sx && theY >= dy && theY <= dy + sy );
+	
+	}	
+	
+}

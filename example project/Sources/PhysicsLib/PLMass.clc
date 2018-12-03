@@ -1,0 +1,87 @@
+#include "PLVector.clc"
+#include "CLObject.clc"
+#include "CLDataList.clc"
+
+PLMass:CLObject
+{
+		
+	char				hadCollision;
+
+	float				friction;
+	float				buoyancy;
+
+	PLVector*			force;
+	PLVector*			position;
+	PLVector*			collision;
+
+	CLDataList*		baseWalls;
+	CLDataList*		touchedWalls;
+	CLDataList*		lastTouchedWalls;
+	
+	
+	// constructor
+    
+    void init ( )
+    {
+	
+		// printf( "Mass init %i\n" , ( int ) self );
+
+		CLObject:init( self );
+
+		force                       = PLVector:alloc( );	// needs release
+		position                    = PLVector:alloc( );	// needs release
+		collision                   = PLVector:alloc( );	// needs release
+
+		baseWalls                   = CLDataList:alloc( );	// needs release
+		touchedWalls                = CLDataList:alloc( );	// needs release
+		lastTouchedWalls            = CLDataList:alloc( );	// needs release
+		
+		// setup
+		
+		hadCollision = 0;
+
+		friction = .9;
+		buoyancy = .9;
+		
+		force.initWithPoints( 0 , 0 );
+		position.initWithPoints( 0 , 0 );
+		collision.initWithPoints( 0 , 0 );
+		
+		baseWalls.init( );
+		touchedWalls.init( );
+		lastTouchedWalls.init( );
+
+    }
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		// printf( "Mass destruct %i\n" , ( int ) self );
+
+		force.release( );
+		position.release( );
+		collision.release( );
+		
+		baseWalls.release( );
+		touchedWalls.release( );
+		lastTouchedWalls.release( );
+
+		CLObject:destruct( self );
+
+	}
+	
+	
+	// descriptor
+	
+	void describe ( )
+	{
+	
+		printf( "\nposition " ); position.describe( );
+		printf( " force" ); force.describe( );
+		
+	}
+
+}

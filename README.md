@@ -1,4 +1,4 @@
 clc
 ===
 
-Class-C programming language documentation, compiler source and core library
+Class-C programming language compiler, documentation, compiler source and example project.

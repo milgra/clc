@@ -1,0 +1,64 @@
+#include "CLObject.clc"
+#include "CLString.clc"
+#include "CLObjectList.clc"
+
+#define kLineTypeGeneral	0
+#define kLineTypeClassDef	1
+#define kLineTypeBlockStart	2
+#define kLineTypeBlockEnd	3
+#define kLineTypeSetting	4
+#define kLineTypeComment	5
+
+
+Line:CLObject
+{
+
+	char            type;
+	CLString*       text;
+    CLObjectList*	tokens;
+
+
+    // constructor
+
+	void init ( )
+	{
+	
+		//printf( "Line init %li\n\n\n" , ( long ) self );
+		
+		CLObject:init( self );
+
+		type = 0;
+		
+		text:alloc( );
+        tokens:alloc( );
+		
+        text:init( );
+        tokens:init( );
+	
+	}
+    
+    
+    // destructor
+    
+    void destruct( )
+    {
+
+        text:release( );
+        tokens:release( );
+
+        CLObject:destruct( self );
+    
+    }
+
+    
+    // description
+	
+	void describe ( )
+	{
+	
+		text.describe( );
+		printf( "(%i)\n" , type );
+		
+	}
+
+}

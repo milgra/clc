@@ -1,0 +1,118 @@
+#include "CLObject.clc"
+#include "CLDataList.clc"
+#include "GLPointP2.clc"
+#include "GLSegment.clc"
+#include "PLMass.clc"
+#include "PLSegment.clc"
+#include "PLSpacer.clc"
+
+
+Scene:CLObject
+{
+
+	CLDataList*		masses;
+	CLDataList*		spacers;
+	CLDataList*		segments;
+	CLDataList*		glPoints;
+	CLDataList*		glSegments;
+	
+	float 				width;
+	float				height;
+
+
+	// constructor
+	
+	void initWithDimensions( float theWidth , float theHeight )
+	{
+	
+		printf( "\nScene initWithDimensions %f %f" , theWidth , theHeight );
+
+		CLObject:init( self );
+	
+		width  = theWidth;
+		height = theHeight;
+
+		masses:alloc( );
+		masses:init( );
+		spacers:alloc( );
+		spacers:init( );
+		segments:alloc( );
+		segments:init( );
+		glPoints:alloc( );
+		glPoints:init( );
+		glSegments:alloc( );
+		glSegments:init( );
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		printf( "\nScene destruct" );
+	
+		struct CLLink* pointLink = glPoints.head;
+		
+		while ( pointLink != NULL )
+		{
+			GLPointP2* glPoint = pointLink->data;
+			glPoint.vertexes = NULL;
+			glPoint.release( );
+			
+			pointLink = pointLink->next;
+		}
+		
+		glPoints.release( );
+
+		struct CLLink* segmentLink = glSegments.head;
+		
+		while ( segmentLink != NULL )
+		{
+			GLSegment* glSegment = segmentLink->data;
+			glSegment.release( );
+			
+			segmentLink = segmentLink->next;
+		}
+		
+		glSegments.release( );
+
+		struct CLLink* massLink = masses.head;
+		
+		while ( massLink != NULL )
+		{
+			PLMass* mass = massLink->data;
+			mass.release( );
+			massLink = massLink->next;
+		}
+		
+		masses.release( );
+				
+		struct CLLink* spacerLink = spacers.head;
+		
+		while ( spacerLink != NULL )
+		{
+			PLSpacer* spacer = spacerLink->data;
+			spacer.release( );
+			spacerLink = spacerLink->next;
+		}
+	
+		spacers.release( );
+		
+		struct CLLink* wallLink = segments.head;
+		
+		while ( wallLink != NULL )
+		{
+			PLSegment* wall = wallLink->data;
+			wall.release( );
+			wallLink = wallLink->next;
+		}
+	
+		segments.release( );
+
+		CLObject:destruct( self );
+			
+	}	
+
+}

@@ -1,0 +1,137 @@
+#include "Scene.clc"
+#include "PLVector.clc"
+
+
+SceneBox:Scene
+{
+	
+	// constructor
+	
+	void initWithDimensions( float theWidth , float theHeight )
+	{
+	
+		Scene:initWithDimensions( self , theWidth , theHeight );
+
+		PLVector* vectorA = PLVector:alloc( );	// needs release
+		PLVector* vectorB = PLVector:alloc( );	// needs release
+		PLVector* vectorC = PLVector:alloc( );	// needs release
+		PLVector* vectorD = PLVector:alloc( );	// needs release
+		
+		vectorA:initWithPoints( 250 , 500 );
+		vectorB:initWithPoints( 270 , 180 );
+		vectorC:initWithPoints( 730 , 50 );
+		vectorD:initWithPoints( 870 , 550 );
+		
+		PLSegment* segmentA = PLSegment:alloc( );	// needs release
+		PLSegment* segmentB = PLSegment:alloc( );	// needs release
+		PLSegment* segmentC = PLSegment:alloc( );	// needs release
+		
+		segmentA:initWithVectors( vectorA , vectorB );
+		segmentB:initWithVectors( vectorB , vectorC );
+		segmentC:initWithVectors( vectorC , vectorD );
+		
+		vectorA.release( );
+		vectorB.release( );
+		vectorC.release( );
+		vectorD.release( );
+		
+		segments.addData( segmentA );
+		segments.addData( segmentB );
+		segments.addData( segmentC );
+
+		GLSegment* glSegmentA = GLSegment:alloc( );
+		GLSegment* glSegmentB = GLSegment:alloc( );
+		GLSegment* glSegmentC = GLSegment:alloc( );
+		
+		glSegmentA:initWithPoints( 	segmentA.pointA.x , segmentA.pointA.y , 
+									segmentA.pointB.x , segmentA.pointB.y );
+		glSegmentB:initWithPoints( 	segmentB.pointA.x , segmentB.pointA.y , 
+									segmentB.pointB.x , segmentB.pointB.y );
+		glSegmentC:initWithPoints( 	segmentC.pointA.x , segmentC.pointA.y , 
+									segmentC.pointB.x , segmentC.pointB.y );
+		
+		glSegments:addData( glSegmentA );
+		glSegments:addData( glSegmentB );
+		glSegments:addData( glSegmentC );
+
+		PLMass* massPointA = PLMass:alloc( );	// needs release
+		PLMass* massPointB = PLMass:alloc( );	// needs release
+		PLMass* massPointC = PLMass:alloc( );	// needs release
+		PLMass* massPointD = PLMass:alloc( );	// needs release
+		
+		massPointA:init( );
+		massPointB:init( );
+		massPointC:init( );
+		massPointD:init( );
+
+		float x = 300.0 + rand() % 100;
+		float y = 400.0 + rand() % 100;
+		
+		massPointA.position.x = x;
+		massPointA.position.y = y - 10.0;
+		
+		massPointB.position.x = x + 100.0;
+		massPointB.position.y = y;
+		
+		massPointC.position.x = x + 100.0;
+		massPointC.position.y = y + 100.0;
+		
+		massPointD.position.x = x;
+		massPointD.position.y = y + 100.0;
+		
+		masses.addData( massPointA );
+		masses.addData( massPointB );
+		masses.addData( massPointC );
+		masses.addData( massPointD );
+		
+		GLPointP2* pointA = GLPointP2:alloc( );
+		GLPointP2* pointB = GLPointP2:alloc( );
+		GLPointP2* pointC = GLPointP2:alloc( );
+		GLPointP2* pointD = GLPointP2:alloc( );
+
+		pointA.initWithPoints( massPointA.position.x , massPointA.position.y );
+		pointB.initWithPoints( massPointB.position.x , massPointB.position.y );
+		pointC.initWithPoints( massPointC.position.x , massPointC.position.y );
+		pointD.initWithPoints( massPointD.position.x , massPointD.position.y );
+		
+		// TRICK!!! aliasing vector struct's x and y member as float*
+		
+		free( pointA.vertexes );
+		free( pointB.vertexes );
+		free( pointC.vertexes );
+		free( pointD.vertexes );
+		
+		pointA.vertexes = (void*)&(massPointA.position.x);
+		pointB.vertexes = (void*)&(massPointB.position.x);
+		pointC.vertexes = (void*)&(massPointC.position.x);
+		pointD.vertexes = (void*)&(massPointD.position.x);
+
+		glPoints:addData( pointA );
+		glPoints:addData( pointB );
+		glPoints:addData( pointC );
+		glPoints:addData( pointD );		
+		
+		PLSpacer* spacerA = PLSpacer:alloc( );	// needs release
+		PLSpacer* spacerB = PLSpacer:alloc( );	// needs release
+		PLSpacer* spacerC = PLSpacer:alloc( );	// needs release
+		PLSpacer* spacerD = PLSpacer:alloc( );	// needs release
+		PLSpacer* spacerE = PLSpacer:alloc( );	// needs release
+		PLSpacer* spacerF = PLSpacer:alloc( );	// needs release
+		
+		spacerA.initWithMasses( massPointA , massPointB );
+		spacerB.initWithMasses( massPointB , massPointC );
+		spacerC.initWithMasses( massPointC , massPointD );
+		spacerD.initWithMasses( massPointD , massPointA );
+		spacerE.initWithMasses( massPointA , massPointC );
+		spacerF.initWithMasses( massPointD , massPointB );
+		
+		spacers.addData( spacerC );
+		spacers.addData( spacerD );
+		spacers.addData( spacerE );
+		spacers.addData( spacerF );
+		spacers.addData( spacerA );
+		spacers.addData( spacerB );
+    		
+	}
+	
+}

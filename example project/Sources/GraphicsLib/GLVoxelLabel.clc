@@ -1,0 +1,177 @@
+#include "GLCubePC33.clc"
+#include "CLObject.clc"
+#include "GLDrawable.clc"
+#include "CLDataList.clc"
+#include "TLPixelFont.clc"
+
+
+GLVoxelLabel:CLObject
+{
+
+
+	CLDataList* cubeCache;
+	CLDataList* drawables;
+	
+	float x;
+	float y;
+	float z;
+	float size;
+	float width;
+
+
+	// constructor
+
+	void init ( float theSize ,
+				float theX ,
+				float theY ,
+				float theZ )
+	{
+
+		// printf( "\nGLVoxelLabel init" );
+
+		CLObject:init( self );
+	
+		drawables = CLDataList:alloc( );
+		cubeCache = CLDataList:alloc( );
+		
+		drawables:init( );
+		cubeCache:init( );
+		
+		x = theX;
+		y = theY;
+		z = theZ;
+
+		size  = theSize;
+		width = 0;
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		// printf( "\nGLVoxelLabel destruct" );
+		
+		// release cubes in drawables
+		
+		struct CLLink* link = drawables.head;
+		
+		while ( link != NULL )
+		{
+		
+			GLDrawable* oneDrawable = link->data;
+			oneDrawable.release( );
+			link = link->next;
+		
+		}
+	
+		drawables.release( );
+		
+		// release cubes in cache
+
+		link = cubeCache.head;
+		
+		while ( link != NULL )
+		{
+		
+			GLCubePC33* oneCube = link->data;
+			oneCube.release( );
+			link = link->next;
+		
+		}
+	
+		cubeCache.release( );
+
+		CLObject:destruct( self );
+
+	}
+	
+	
+	// sets text
+	
+	void setText( char* theText )
+	{
+	
+		// putting back cubes in cubeCache
+		
+		struct CLLink* link = drawables.head;
+		
+		while ( link != NULL )
+		{
+			GLCubePC33* oneCube = ( GLCubePC33* ) link->data;
+			cubeCache:addData( oneCube );
+			link = link->next;
+		}
+		
+		drawables:removeAllDatas( );
+		
+		width = 0;
+		
+		// building up new label	
+
+		while ( *theText != '\0' )
+		{
+
+			TLPixelFont* font = TLPixelFont:alloc( );
+
+			font:initWithCharacter( *theText );
+			
+			float* data = font.data;
+
+			for ( int index = 0 ;
+					  index < font.length ;
+					  index += 2 )
+			{
+			
+				float nx = x + width + data[ index ] * size;
+				float ny = y + 6 * size - data[ index + 1 ] * size;
+
+				GLCubePC33* oneCube = cubeCache:removeDataAtIndex( 0 );
+				
+				// create new cube if needed
+				
+				if ( oneCube == NULL )
+				{
+					oneCube = GLCubePC33:alloc( );
+					oneCube:init( );
+					oneCube:scale( size , size , size );
+				}
+
+				oneCube:origo( nx , ny , z );
+				
+				drawables:addData( ( GLDrawable* ) oneCube );
+										
+			}
+
+			width = width + font.width * size;
+			
+			font.release( );
+
+			theText += 1;
+			
+		}
+
+	}
+	
+	
+	// moves label
+	
+	void move( float theX , float theY , float theZ )
+	{
+	
+		struct CLLink* link = drawables.head;
+		
+		while ( link != NULL )
+		{
+		
+			GLCubePC33* oneCube = ( GLCubePC33* ) link->data;
+			oneCube:move( theX , theY , theZ );
+			link = link->next;
+		
+		}
+	
+	}
+
+}

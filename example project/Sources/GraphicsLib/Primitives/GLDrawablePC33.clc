@@ -1,0 +1,134 @@
+#include "GLDrawable.clc"
+
+
+GLDrawablePC33:GLDrawable
+{
+
+
+	// position and scale values
+
+	float dx;
+	float dy;
+	float dz;
+
+	float sx;
+	float sy;
+	float sz;
+
+
+	// constructor
+
+	void init( )
+	{
+	
+		GLDrawable:init( self );
+		
+		dx = 0;
+		dy = 0;
+		dz = 0;
+		
+		sx = 1;
+		sy = 1;
+		sz = 1;
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		GLDrawable:destruct( self );
+	
+	}
+	
+	
+	// moves drawable
+
+	void move( float theX , float theY , float theZ )
+	{
+	
+		dx += theX;
+		dy += theY;
+		dz += theZ;
+	
+		for ( int index = 0 ;
+				  index < vertexCount * 6 ;
+				  index += 6 )
+		{
+		
+			vertexes[ index 	] += theX;
+			vertexes[ index + 1 ] += theY;
+			vertexes[ index + 2 ] += theZ;
+		
+		}
+		
+	}
+		
+	
+	// sets origon of drawable
+	
+	void origo( float theX , float theY , float theZ )
+	{
+		
+		for ( int index = 0 ;
+				  index < vertexCount * 6 ;
+				  index += 6 )
+		{
+		
+			vertexes[ index 	] += -dx + theX;
+			vertexes[ index + 1 ] += -dy + theY;
+			vertexes[ index + 2 ] += -dz + theZ;
+		
+		}
+		
+		dx = theX;
+		dy = theY;
+		dz = theZ;
+	
+	}
+	
+	
+	// scales drawable
+	
+	void scale( float theX , float theY , float theZ )
+	{
+	
+		sx *= theX;	
+		sy *= theY;	
+		sz *= theZ;
+	
+		for ( int index = 0 ;
+				  index < vertexCount * 6 ;
+				  index += 6 )
+		{
+		
+			vertexes[ index 	] *= theX;
+			vertexes[ index + 1 ] *= theY;
+			vertexes[ index + 2 ] *= theZ;
+		
+		}
+		
+	}
+
+
+	// sets color of drawable
+
+	void color( float theX , float theY , float theZ )
+	{
+	
+		for ( int index = 0 ;
+				  index < vertexCount * 6 ;
+				  index += 6 )
+		{
+		
+			vertexes[ index + 3 ] = theX;
+			vertexes[ index + 4 ] = theY;
+			vertexes[ index + 5 ] = theZ;
+		
+		}
+		
+	}
+	
+}

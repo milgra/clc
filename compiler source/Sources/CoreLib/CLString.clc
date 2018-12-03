@@ -1,0 +1,576 @@
+#include "CLChar.h"
+#include "CLObject.clc"
+
+
+CLString:CLObject
+{
+
+	struct CLChar* 	head;		// pointer to first character
+	struct CLChar* 	last;		// pointer to last character
+	unsigned long	length;		// character count in string
+
+
+	// constructor
+
+	void init ( )
+	{
+	
+		CLObject:init( self );
+		
+		head	= NULL;
+		last	= NULL;
+		length	= 0;
+
+	}	
+
+
+	// constructor
+
+	void initWithString( CLString* theString )
+	{
+	
+		init( );
+		appendString( theString );
+
+	}
+
+
+	// constructor
+
+	void initWithCString ( char* theString )
+	{
+
+		init( );
+		appendCString( theString );
+
+	}	
+	
+
+	// destructor
+
+	void destruct( )
+	{
+	
+		removeAllCharacters( );
+		CLObject:destruct( self );
+
+	}
+
+
+	// appends character
+
+	void appendCharacter ( char	theCharacter )
+	{
+
+		struct CLChar* newChar;
+		
+		newChar = malloc( sizeof( struct CLChar ) );
+		newChar->next		= NULL;
+		newChar->character	= theCharacter;
+	
+		if ( head == NULL ) head = newChar;
+		else last->next = newChar;
+
+		last		= newChar;
+		length		= length + 1;
+
+	}
+
+
+	// appends string
+
+	void appendString ( CLString* theString )
+	{
+
+		struct CLChar* link;
+	
+		if ( theString != NULL && theString.length > 0 )
+		{
+		
+			link = theString.head;
+			
+			while ( link != NULL )
+			{
+		
+				appendCharacter( link->character );
+			
+				link = link->next;
+			
+			}
+		
+		}
+
+	}
+		
+
+	// create string from c string
+
+	void appendCString( char* theString )
+	{
+	
+		while ( *theString != '\0' )
+		{
+		
+			appendCharacter( *theString );
+			theString += 1;
+
+		}
+
+	}
+
+
+	// removes all characters
+	
+	void removeAllCharacters( )
+	{
+	
+		struct CLChar* link;
+		struct CLChar* prev;
+		
+		// init
+
+		link = head;
+		prev = NULL;
+
+		while ( link != NULL ) 
+		{
+			prev	= link;
+			link	= link->next;
+			
+			free( prev );
+		}
+		
+		head	= NULL;
+		last	= NULL;
+		length	= 0;
+	
+	}
+
+
+	// reads string from file
+			
+	void readFile( CLString* thePath )
+	{
+
+		char*	fileName;
+		int		character;
+		FILE*	filePointer;
+		
+		// init
+
+		fileName = thePath.cString( );	// needs release
+		filePointer	= fopen( fileName , "r" );
+		
+		if ( filePointer != NULL )
+		{
+			
+			character = getc( filePointer ) ;
+
+			while ( character != EOF )
+			{
+
+				appendCharacter( character );
+				character = getc( filePointer );
+
+			}
+
+			fclose( filePointer );
+			
+		}
+
+		free( fileName );
+			
+	}
+
+
+	// reads string from file
+			
+	void readFilePointer( FILE* thePointer )
+	{
+
+		int character;
+		
+		// init
+		
+		character = getc( thePointer ) ;
+
+		while ( character != EOF )
+		{
+
+			appendCharacter( character );
+			character = getc( thePointer );
+
+		}
+			
+	}
+
+		
+	// writes string to file
+			
+	void writeToFile( CLString* thePath )
+	{
+
+		char* fileName;
+		FILE* filePointer;
+		struct CLChar* link;
+		
+		// init
+
+		fileName = thePath.cString( );	// needs release
+		filePointer	= fopen( fileName , "w" );
+	
+		link = head;
+
+		while ( link != NULL )
+		{
+
+			putc( link->character , filePointer );
+			link = link->next;
+			
+		}	
+
+		fclose( filePointer );
+		free( fileName );
+		
+	}
+
+		
+	// writes string to file
+			
+	void writeToFilePointer( FILE* theFilePointer )
+	{
+
+		struct CLChar* link;
+		
+		// init
+		
+		link = head;
+
+		while ( link != NULL )
+		{
+
+			putc( link->character , theFilePointer );
+			link = link->next;
+			
+		}	
+		
+	}
+
+
+	// returns last path component
+
+	CLString* stringWithLastPathComponent( )
+	{
+	
+		struct CLChar*	link;
+		CLString*       result;
+		
+		// init
+
+		link = head;
+		result:alloc( );
+		result:init( );
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == '/' || link->character == '\\' ) 
+			{
+            
+				// cleanup memory
+				result.release( );
+				result = CLString:alloc( ); result.init( );
+                
+			}
+			else result.appendCharacter( link->character );
+
+			link = link->next;
+
+		}
+
+		return result;
+	
+	}
+
+
+	// returns string without extension
+
+	CLString* stringByRemovingExtension( )
+	{
+	
+		struct CLChar*	link;
+		CLString*		part;
+		CLString*		result;
+		char			inExtension;
+		
+		// init
+		
+		link = head;
+		inExtension = 0;
+		
+		part:alloc( );		// needs release
+		result:alloc( );	// needs release
+
+		part:init( );
+		result:init( );
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == '.' ) 
+			{
+				inExtension = 1;
+				result:appendString( part );
+				part:release( );
+				part = CLString:alloc( );
+				part:init( );
+			}
+			else if ( inExtension == 1 ) inExtension = 0;
+			
+			part:appendCharacter( link->character );
+
+			link = link->next;
+
+		}
+		
+		part:release( );
+
+		return result;
+		
+	}
+
+
+	// returns string without last path component
+
+	CLString* stringByRemovingLastPathComponent ( )
+	{
+	
+		struct CLChar* link;
+
+		CLString* 	part;
+		CLString* 	result;
+		
+		// init
+
+		link = head;
+		result:alloc( );	// needs release
+		part:alloc( );		// needs releaes
+
+		result:init( );
+		part:init( );
+
+		while ( link != NULL )
+		{
+
+			part:appendCharacter( link->character );
+
+			if ( link->character == '/' || link->character == '\\' ) 
+			{
+
+				result:appendString( part );
+
+				part:release( );
+				part = CLString:alloc( );
+				part:init( );
+
+			}
+
+			link = link->next;
+
+		}
+
+		if ( result.length == 0 ) result:appendString( part );
+		
+		// cleanup
+		
+		part:release( );
+
+		return result;
+	
+	}
+	
+	
+	// checks if string is in string
+	
+	char containsString( CLString* theString )
+	{
+	
+		struct CLChar* link;
+		struct CLChar* search;
+		
+		// init
+
+		link = head;
+		search = theString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == search->character )
+			{
+			
+				search = search->next;
+
+				if ( search == NULL ) return 1;
+
+			}
+			else
+			{
+				
+				search = theString.head;
+				
+			}
+
+			link 	= link->next;
+
+		}
+
+		return 0;
+	
+	}
+
+
+	// retruns index of given string in string
+
+	unsigned long indexOfString ( CLString*	theSearchString )
+	{
+	
+		char found;
+		unsigned long result;
+		unsigned long index;
+		
+		struct CLChar* link;
+		struct CLChar* search;
+		
+		// init
+
+		found	= 0;
+		result	= 0;
+		index	= 0;
+		link	= head;
+		search	= theSearchString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == search->character )
+			{
+			
+				if ( found == 0 )
+				{
+					found = 1;
+					result = index;
+				}
+
+				search = search->next;
+
+				if ( search == NULL ) return result;
+
+			}
+			else 
+			{
+				
+				found = 0;
+				search = theSearchString.head;
+				
+			}
+
+			link 	= link->next;
+			index	= index + 1;
+
+		}
+
+		return result;
+
+	}
+
+
+	// returns string equality
+
+	char equals ( CLString* theStringB )
+	{
+
+		struct CLChar* linkA;
+		struct CLChar* linkB;
+		
+		// init
+	
+		if ( length != theStringB.length ) return 0;
+		
+		linkA = head;
+		linkB = theStringB.head;
+
+		while ( linkA != NULL && linkB != NULL )
+		{
+
+			if ( linkA->character != linkB->character ) return 0;
+
+			linkA = linkA->next;
+			linkB = linkB->next;
+
+		}
+
+		return 1;
+
+	}
+
+	
+	// converts string to chars
+
+	char* cString ( )
+	{
+	
+		int		index;
+		char* 	result;
+		struct CLChar* link;
+		
+		// init
+	
+		if ( head != NULL )
+		{
+
+			
+			link	= head;
+			result 	= malloc( sizeof( char ) * ( length + 1 ) );
+			index	= 0;
+
+			while ( link != NULL && link->character != 0 ) 
+			{
+
+				result[ index++ ]	= link->character;
+				link				= link->next;
+
+			}
+
+			result[ index ] = 0;
+
+			return result;
+			
+		} 
+		else return NULL;
+
+	}
+
+
+	// prints string to chars
+
+	void describe ( )
+	{
+	
+		struct CLChar* link;
+		
+		// init
+		
+		link = head;
+
+		while ( link != NULL ) 
+		{
+
+			printf( "%c" , link->character );
+			link = link->next;
+
+		}
+		
+	}
+
+}

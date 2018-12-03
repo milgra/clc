@@ -1,0 +1,417 @@
+#include "CLObject.clc"
+#include "CLString.clc"
+#include "CLObjectList.clc"
+
+#include "Line.clc"
+#include "Token.clc"
+
+
+Tokenizer:CLObject
+{
+
+
+	// splits text into lines
+	// line types :
+	//
+	// setting
+	// comment
+	// block start
+	// block end
+	// standard
+    // class definition
+	//
+	// line ends :
+	//
+	// \n \r in case of setting or comment
+	// ; { } in case of normal line
+	// { } are standalone lines
+	// all of them are allowed in char declaration and char strings
+	
+	void createLines( 	CLString*		theString ,
+						CLObjectList*	theLines )
+	{
+
+		// printf( "\nTokenizer createLines" );
+		
+		char inChar;
+		char inChars;
+        char inClass;
+		char inEscape;
+		struct CLChar* actualChar;
+		Line* actualLine;
+		Line** actualLinePointer;
+		
+		// init
+	
+		actualLine:alloc( );			// needs release
+		actualLine:init( );
+		actualLine.type = kLineTypeGeneral;
+		
+		actualLinePointer = &actualLine;
+		
+		inChar = 0;
+		inChars = 0;
+		inClass = 0;
+		inEscape = 0;
+				
+		actualChar = theString.head;
+		
+		while ( actualChar != NULL )
+		{
+		
+			if ( actualLine.type == kLineTypeSetting || 
+				 actualLine.type == kLineTypeComment )
+			{
+			
+				// in case of setting or comment finish at new line
+
+				if ( actualChar->character == '\n' || actualChar->character == '\r' ) 
+				{
+					resetActualLine( actualLinePointer , theLines );
+					actualLine = *actualLinePointer;
+				}
+				else actualLine.text.appendCharacter( actualChar->character );
+			
+			}
+			else if ( actualLine.type == kLineTypeGeneral )
+			{
+			
+				// in case of normal statement
+			
+				if ( inChars == 1 || inChar == 1 )
+				{
+				
+					// checking char/chars ending and escape char
+				
+					if ( inEscape == 0 )
+					{
+				
+						if ( actualChar->character == '\\' ) inEscape = 1;				
+						if ( inChar  == 1 && actualChar->character == '\'' ) inChar  = 0;
+						if ( inChars == 1 && actualChar->character == '"'  ) inChars = 0;
+					
+					}
+					else inEscape = 0;
+					
+					actualLine.text.appendCharacter( actualChar->character );
+				
+				}
+				else
+				{
+				
+					if ( actualChar->character == '#' )
+					{
+						// setting start
+						
+						if ( actualLine.text.length == 0 ) actualLine.type = kLineTypeSetting;
+						actualLine.text.appendCharacter( actualChar->character );
+						
+					}
+					else if ( actualChar->character == '/' )
+					{
+						// comment start
+						
+						if ( actualLine.text.length == 0 ) actualLine.type = kLineTypeComment;
+						actualLine.text.appendCharacter( actualChar->character );
+						
+					}
+					else if ( actualChar->character == ';' )
+					{
+						// block end
+						
+						actualLine.text.appendCharacter( actualChar->character );
+						resetActualLine( actualLinePointer , theLines );
+						actualLine = *actualLinePointer;
+
+					}
+					else if ( actualChar->character == '{' )
+					{
+						// block start
+                        
+						if ( inClass == 0 ) { actualLine.type = kLineTypeClassDef; inClass = 1; }
+						resetActualLine( actualLinePointer , theLines );
+						actualLine.type = kLineTypeBlockStart;
+						actualLine.text.appendCharacter( actualChar->character );
+						resetActualLine( actualLinePointer , theLines );
+						actualLine = *actualLinePointer;
+						
+					}
+					else if ( actualChar->character == '}' )
+					{
+						// block end
+						
+						resetActualLine( actualLinePointer , theLines );
+						actualLine.type = kLineTypeBlockEnd;
+						actualLine.text.appendCharacter( actualChar->character );
+						resetActualLine( actualLinePointer , theLines );
+						actualLine = *actualLinePointer;
+
+					}
+					else if ( actualChar->character == '\'' || actualChar->character == '"' )
+					{
+						// char or chars
+						
+						if ( actualChar->character == '\'' ) inChar  = 1;
+						if ( actualChar->character == '"'  ) inChars = 1;
+						actualLine.text.appendCharacter( actualChar->character );
+						
+					}
+					else if ( actualChar->character == ' ' || actualChar->character == '\t' )
+					{
+						// line starting white space filtering
+						
+						if ( actualLine.text.length > 0 ) actualLine.text.appendCharacter( actualChar->character );
+						
+					}
+					else if ( actualChar->character != '\r' && actualChar->character != '\n' )
+					{
+					
+						// new line filtering
+						
+						actualLine.text.appendCharacter( actualChar->character );
+
+					}
+				
+				}
+			
+			}
+
+			actualChar = actualChar->next;
+		
+		}
+		
+		// add remaining line
+
+		resetActualLine( actualLinePointer , theLines );
+		
+		actualLine = *actualLinePointer;
+		actualLine:release( );
+
+	}
+		
+	
+	// adds actual line to lines, and creates new
+	
+	void resetActualLine( Line** theLinePointer , CLObjectList* theLines )
+	{
+
+		// printf( "\nTokenizer resetActualLine" );
+		
+		Line* actualLine;
+		
+		// init
+		
+		actualLine = *theLinePointer;
+		
+		if ( actualLine.text.length > 0 )
+		{
+
+            createTokens( actualLine.text , actualLine.tokens );
+            
+			theLines.addObject( ( CLObject* ) actualLine );
+			actualLine.release( );
+			*theLinePointer = Line:alloc( );
+			actualLine = *theLinePointer;
+			actualLine:init( );
+			actualLine.type = kLineTypeGeneral;
+		
+		}
+	
+	}
+	
+
+	// splits statements into tokens at whitespaces and word-symbol borders
+	
+	void createTokens( 	CLString* 		theString , 
+						CLObjectList*  theTokens )
+	{
+
+		// printf( "\nTokenizer createTokens" );
+		
+		char inChar;
+		char inChars;
+		char inEscape;
+		struct CLChar* actualChar;
+		Token* actualToken;
+		Token** actualTokenPointer;
+		
+		// init
+
+		actualToken:alloc( );
+		actualToken:init( );
+		actualToken.mainType = kTokenMainTypeWord;
+		
+		actualTokenPointer = &actualToken;
+			
+		inChar = 0;
+		inChars = 0;
+		inEscape = 0;
+		
+		actualChar = theString.head;
+
+		while ( actualChar != NULL )
+		{
+				
+			if ( inChars == 1 || inChar == 1 )
+			{
+			
+				// checking char/chars ending and escape char
+			
+				if ( inEscape == 0 )
+				{
+			
+					if ( actualChar->character == '\\' ) inEscape = 1;
+					
+					if ( inChar  == 1 && actualChar->character == '\'' ) 
+					{
+						inChar  = 0;
+						resetActualToken( actualTokenPointer , theTokens );
+						actualToken = *actualTokenPointer;
+						actualToken.mainType = kTokenMainTypeSymbol;
+					}
+
+					if ( inChars == 1 && actualChar->character == '"'  ) 
+					{
+						inChars = 0;
+						resetActualToken( actualTokenPointer , theTokens );
+						actualToken = *actualTokenPointer;
+						actualToken.mainType = kTokenMainTypeSymbol;
+					}
+
+				}
+				else inEscape = 0;
+				
+				// add char to char or char string
+				
+				actualToken.text.appendCharacter( actualChar->character );
+
+			}
+			else
+			{
+			
+				if ( actualChar->character == '\'' || actualChar->character == '"' )
+				{
+					// char or chars
+					
+					if ( actualChar->character == '\'' ) inChar  = 1;
+					if ( actualChar->character == '"'  ) inChars = 1;
+					
+					// add quotation symbol
+					
+					actualToken.mainType = kTokenMainTypeSymbol;
+					actualToken.text.appendCharacter( actualChar->character );
+					resetActualToken( actualTokenPointer , theTokens );
+					actualToken = *actualTokenPointer;
+					
+					// string follows
+					
+					actualToken.mainType = kTokenMainTypeString;
+					
+				}
+				else if (	actualChar->character == ' '	||
+							actualChar->character == '\t'	||
+							actualChar->character == '\n'	||
+							actualChar->character == '\r'	)
+				{
+				
+					// add token if not empty
+				
+					resetActualToken( actualTokenPointer , theTokens );
+					actualToken = *actualTokenPointer;
+				
+				}
+				else if (	actualChar->character == '*'	||
+							actualChar->character == '/'	||
+							actualChar->character == '+'	||
+							actualChar->character == '-'	||
+							actualChar->character == '='	||
+							actualChar->character == '|'	||
+							actualChar->character == '&'	||
+							actualChar->character == '.'	||
+							actualChar->character == ','	||
+							actualChar->character == ':'	||
+							actualChar->character == ';'	||
+							actualChar->character == '<'	||
+							actualChar->character == '>'	||
+							actualChar->character == '{'	||
+							actualChar->character == '}'	||
+							actualChar->character == '['	||
+							actualChar->character == ']'	||
+							actualChar->character == '('	||
+							actualChar->character == ')'	||
+							actualChar->character == '^'	||
+							actualChar->character == '!'	||
+							actualChar->character == '#'	||
+							actualChar->character == '?'	||
+							actualChar->character == '%'	 )
+				{
+				
+					// add token if not empty
+				
+					resetActualToken( actualTokenPointer , theTokens );
+					actualToken = *actualTokenPointer;
+					
+					// add symbol token
+					
+					actualToken.mainType = kTokenMainTypeSymbol;
+					actualToken.text.appendCharacter( actualChar->character );
+					resetActualToken( actualTokenPointer , theTokens );
+					actualToken = *actualTokenPointer;
+
+				}
+				else
+				{
+				
+					// add character into word token
+				
+					actualToken.mainType = kTokenMainTypeWord;
+					actualToken.text.appendCharacter( actualChar->character );
+
+				}
+				
+			}
+		
+			actualChar = actualChar->next;
+		
+		}
+		
+		// add remaining token
+
+		resetActualToken( actualTokenPointer , theTokens );
+		
+		// release
+		
+		actualToken = *actualTokenPointer;
+		actualToken:release( );
+	
+	}
+
+
+	// adds actual line to lines, and creates new
+	
+	void resetActualToken( Token** theTokenPointer , CLObjectList* theTokens )
+	{
+
+		// printf( "\nTokenizer resetActualToken" );
+		
+		Token* actualToken;
+		
+		// init
+		
+		actualToken = *theTokenPointer;
+		
+		if ( actualToken.text.length > 0 )
+		{
+		
+			theTokens.addObject( ( CLObject* ) actualToken );
+			actualToken.release( );
+			*theTokenPointer = Token:alloc( );
+			actualToken = *theTokenPointer;
+			actualToken:init( );
+			actualToken.mainType = kTokenMainTypeWord;
+
+		}
+	
+	}
+			
+}

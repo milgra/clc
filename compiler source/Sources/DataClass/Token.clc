@@ -1,0 +1,180 @@
+#import "CLObject.clc"
+#import "CLString.clc"
+
+#define kTokenMainTypeUndefined			0
+#define kTokenMainTypeWord				1
+#define kTokenMainTypeString			2
+#define kTokenMainTypeSymbol			3
+#define kTokenMainTypeComment			4
+#define kTokenMainTypeSetting			5
+
+#define kTokenSubTypeUndefined			6
+#define kTokenSubTypeClass				7
+#define kTokenSubTypeCast				8
+#define kTokenSubTypeInstance			9
+#define kTokenSubTypeVariable			10
+#define kTokenSubTypeMethod				11
+#define kTokenSubTypeLocalCall			12
+#define kTokenSubTypeImplicitCall		13
+#define kTokenSubTypeExplicitCall		14
+#define kTokenSubTypeExplicitAllocCall	15
+#define kTokenSubTypeExplicitClassCall	16
+#define kTokenSubTypeExplicitCallClass	17
+#define kTokenSubTypeExplicitAccessor	18
+#define kTokenSubTypeImplicitAccessor	19
+#define kTokenSubTypeForEachCycle		20
+#define kTokenSubTypeLocalCallReference 21
+#define kTokenSubTypeStructAccessor		22
+
+
+Token:CLObject
+{
+
+	CLString*	text;
+	CLString*	linkId;
+	CLString*	classId;
+	CLString*	variableId;
+	CLString*	containerId;
+	CLString*	instanceList;
+
+	char		subType;
+	char		mainType;
+	char		isMember;
+
+
+	// initializer
+
+	void init ( )
+	{
+
+		CLObject:init( self );
+		
+        linkId			= NULL;
+		classId			= NULL;
+        variableId		= NULL;
+        containerId		= NULL;
+        instanceList	= NULL;
+
+		mainType		= kTokenMainTypeUndefined;
+		subType			= kTokenSubTypeUndefined;
+		isMember		= 0;
+		
+		text:alloc( );
+		text:init( );
+		
+	}
+
+	
+	// destructor
+	
+	void destruct ( )
+	{
+
+		//printf( "Token destruct %li %i\n" , ( long ) self , self->Object_offset );
+		
+		text:release( );
+		
+		if ( linkId != NULL ) linkId:release( );
+        if ( classId != NULL ) classId:release( );
+        if ( variableId != NULL ) variableId:release( );
+        if ( containerId != NULL ) containerId:release( );
+        if ( instanceList != NULL ) instanceList:release( );
+
+        CLObject:init( self );
+
+	}
+
+
+	// set text
+	
+	void setText( CLString* theText )
+	{
+	
+		if ( text != NULL ) text.release( );
+		text = theText;
+		if ( text != NULL ) text.retain( );
+	
+	}
+
+
+	// set text
+	
+	void setLinkId( CLString* theLinkId )
+	{
+	
+		if ( linkId != NULL ) linkId.release( );
+		linkId = theLinkId;
+		if ( linkId != NULL ) linkId.retain( );
+	
+	}
+	
+	
+	// set classId
+	
+	void setClassId( CLString* theClassId )
+	{
+	
+		if ( classId != NULL ) classId.release( );
+		classId = theClassId;
+		if ( classId != NULL ) classId.retain( );
+	
+	}
+
+
+	// set variableId
+	
+	void setVariableId( CLString* theVariableId )
+	{
+	
+		if ( variableId != NULL ) variableId.release( );
+		variableId = theVariableId;
+		if ( variableId != NULL ) variableId.retain( );
+	
+	}
+	
+
+	// set variableId
+	
+	void setContainerId( CLString* theContainerId )
+	{
+	
+		if ( containerId != NULL ) containerId.release( );
+		containerId = theContainerId;
+		if ( containerId != NULL ) containerId.retain( );
+	
+	}
+
+
+	// set instance chain
+	
+	void setInstanceList( CLString* theList )
+	{
+	
+		if ( instanceList != NULL ) instanceList.release( );
+		instanceList = theList;
+		if ( instanceList != NULL ) instanceList.retain( );
+	
+	}
+    
+		
+	// describes instance
+
+	void describe( )
+	{
+	
+		//printf( "\nToken mainType %i subType %i text" , *(self->mainType) , *(self->subType) );
+		
+		if ( text != NULL ) text.describe( );
+		printf( "|" );
+        printf( "%i" , mainType );
+		printf( "%i" , subType );
+		if ( isMember == 1 ) printf( "M" );
+		if ( classId != NULL ) classId.describe( );
+		if ( variableId != NULL ) variableId.describe( );
+		if ( linkId != NULL ) linkId.describe( );
+		if ( containerId != NULL ) containerId.describe( );
+		printf( "|" );
+	
+	}
+	
+}

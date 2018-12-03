@@ -1,0 +1,320 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3316012B184E03B4003CD999 /* clcsrc.c in Sources */ = {isa = PBXBuildFile; fileRef = 33160124184E03B4003CD999 /* clcsrc.c */; };
+		3316012C184E03B4003CD999 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 33160126184E03B4003CD999 /* main.c */; };
+		3316012E184E0640003CD999 /* clcc_0.7 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3316010A184E0357003CD999 /* clcc_0.7 */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		33160108184E0357003CD999 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = /Users/milgra/bin;
+			dstSubfolderSpec = 0;
+			files = (
+				3316012E184E0640003CD999 /* clcc_0.7 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		3316010A184E0357003CD999 /* clcc_0.7 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = clcc_0.7; sourceTree = BUILT_PRODUCTS_DIR; };
+		33160117184E03B4003CD999 /* CLChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLChar.h; sourceTree = "<group>"; };
+		33160118184E03B4003CD999 /* CLLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLink.h; sourceTree = "<group>"; };
+		33160119184E03B4003CD999 /* CLObject.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = CLObject.clc; sourceTree = "<group>"; };
+		3316011A184E03B4003CD999 /* CLObjectList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = CLObjectList.clc; sourceTree = "<group>"; };
+		3316011B184E03B4003CD999 /* CLString.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = CLString.clc; sourceTree = "<group>"; };
+		3316011C184E03B4003CD999 /* CLStringObjectList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = CLStringObjectList.clc; sourceTree = "<group>"; };
+		3316011E184E03B4003CD999 /* ClassElements.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = ClassElements.clc; sourceTree = "<group>"; };
+		3316011F184E03B4003CD999 /* Constants.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Constants.clc; sourceTree = "<group>"; };
+		33160120184E03B4003CD999 /* FileElements.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = FileElements.clc; sourceTree = "<group>"; };
+		33160121184E03B4003CD999 /* Line.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Line.clc; sourceTree = "<group>"; };
+		33160122184E03B4003CD999 /* Scope.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Scope.clc; sourceTree = "<group>"; };
+		33160123184E03B4003CD999 /* Token.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Token.clc; sourceTree = "<group>"; };
+		33160124184E03B4003CD999 /* clcsrc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clcsrc.c; path = ../../../Sources/clcsrc.c; sourceTree = "<group>"; };
+		33160125184E03B4003CD999 /* clcsrc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = clcsrc.h; path = ../../../Sources/clcsrc.h; sourceTree = "<group>"; };
+		33160126184E03B4003CD999 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../../Sources/main.c; sourceTree = "<group>"; };
+		33160127184E03B4003CD999 /* Analyzer.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Analyzer.clc; path = ../../../Sources/Analyzer.clc; sourceTree = "<group>"; };
+		33160128184E03B4003CD999 /* Creator.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Creator.clc; path = ../../../Sources/Creator.clc; sourceTree = "<group>"; };
+		33160129184E03B4003CD999 /* Main.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Main.clc; path = ../../../Sources/Main.clc; sourceTree = "<group>"; };
+		3316012A184E03B4003CD999 /* Tokenizer.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = Tokenizer.clc; path = ../../../Sources/Tokenizer.clc; sourceTree = "<group>"; };
+		3347CE68185518C400A5BD53 /* clcc_0.7.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clcc_0.7.c; path = ../../../Related/clcc_0.7.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		33160107184E0357003CD999 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		33160101184E0357003CD999 = {
+			isa = PBXGroup;
+			children = (
+				3316010C184E0357003CD999 /* clcc_0.7OSX */,
+				3316010B184E0357003CD999 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3316010B184E0357003CD999 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3316010A184E0357003CD999 /* clcc_0.7 */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3316010C184E0357003CD999 /* clcc_0.7OSX */ = {
+			isa = PBXGroup;
+			children = (
+				33160116184E03B4003CD999 /* CoreLib */,
+				3316011D184E03B4003CD999 /* DataClass */,
+				3347CE67185517C500A5BD53 /* Flat */,
+				33160125184E03B4003CD999 /* clcsrc.h */,
+				33160124184E03B4003CD999 /* clcsrc.c */,
+				33160126184E03B4003CD999 /* main.c */,
+				33160127184E03B4003CD999 /* Analyzer.clc */,
+				33160128184E03B4003CD999 /* Creator.clc */,
+				33160129184E03B4003CD999 /* Main.clc */,
+				3316012A184E03B4003CD999 /* Tokenizer.clc */,
+			);
+			path = clcc_0.7OSX;
+			sourceTree = "<group>";
+		};
+		33160116184E03B4003CD999 /* CoreLib */ = {
+			isa = PBXGroup;
+			children = (
+				33160117184E03B4003CD999 /* CLChar.h */,
+				33160118184E03B4003CD999 /* CLLink.h */,
+				33160119184E03B4003CD999 /* CLObject.clc */,
+				3316011A184E03B4003CD999 /* CLObjectList.clc */,
+				3316011B184E03B4003CD999 /* CLString.clc */,
+				3316011C184E03B4003CD999 /* CLStringObjectList.clc */,
+			);
+			name = CoreLib;
+			path = ../../../Sources/CoreLib;
+			sourceTree = "<group>";
+		};
+		3316011D184E03B4003CD999 /* DataClass */ = {
+			isa = PBXGroup;
+			children = (
+				3316011E184E03B4003CD999 /* ClassElements.clc */,
+				3316011F184E03B4003CD999 /* Constants.clc */,
+				33160120184E03B4003CD999 /* FileElements.clc */,
+				33160121184E03B4003CD999 /* Line.clc */,
+				33160122184E03B4003CD999 /* Scope.clc */,
+				33160123184E03B4003CD999 /* Token.clc */,
+			);
+			name = DataClass;
+			path = ../../../Sources/DataClass;
+			sourceTree = "<group>";
+		};
+		3347CE67185517C500A5BD53 /* Flat */ = {
+			isa = PBXGroup;
+			children = (
+				3347CE68185518C400A5BD53 /* clcc_0.7.c */,
+			);
+			name = Flat;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		33160109184E0357003CD999 /* clcc_0.7OSX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33160113184E0357003CD999 /* Build configuration list for PBXNativeTarget "clcc_0.7OSX" */;
+			buildPhases = (
+				3316012D184E03C6003CD999 /* ShellScript */,
+				33160106184E0357003CD999 /* Sources */,
+				33160107184E0357003CD999 /* Frameworks */,
+				33160108184E0357003CD999 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = clcc_0.7OSX;
+			productName = clcc_0.7OSX;
+			productReference = 3316010A184E0357003CD999 /* clcc_0.7 */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		33160102184E0357003CD999 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Milan Toth";
+			};
+			buildConfigurationList = 33160105184E0357003CD999 /* Build configuration list for PBXProject "clcc_0.7OSX" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 33160101184E0357003CD999;
+			productRefGroup = 3316010B184E0357003CD999 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				33160109184E0357003CD999 /* clcc_0.7OSX */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3316012D184E03C6003CD999 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/Users/milgra/bin/clcc_0.7b Main.clc -p /Users/milgra/Desktop/Cloud/Work/Compiler/Sources/ -p /Users/milgra/Desktop/Cloud/Work/Compiler/Sources/CoreLib/ -p /Users/milgra/Desktop/Cloud/Work/Compiler/Sources/DataClass/ -o /Users/milgra/Desktop/Cloud/Work/Compiler/Sources/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		33160106184E0357003CD999 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3316012C184E03B4003CD999 /* main.c in Sources */,
+				3316012B184E03B4003CD999 /* clcsrc.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		33160111184E0357003CD999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		33160112184E0357003CD999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		33160114184E0357003CD999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c89;
+				GCC_WARN_PEDANTIC = YES;
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = clcc_0.7;
+			};
+			name = Debug;
+		};
+		33160115184E0357003CD999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c89;
+				GCC_WARN_PEDANTIC = YES;
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = clcc_0.7;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		33160105184E0357003CD999 /* Build configuration list for PBXProject "clcc_0.7OSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33160111184E0357003CD999 /* Debug */,
+				33160112184E0357003CD999 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		33160113184E0357003CD999 /* Build configuration list for PBXNativeTarget "clcc_0.7OSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33160114184E0357003CD999 /* Debug */,
+				33160115184E0357003CD999 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 33160102184E0357003CD999 /* Project object */;
+}

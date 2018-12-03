@@ -1,0 +1,79 @@
+#include "Scene.clc"
+#include "PLVector.clc"
+
+
+SceneSlope:Scene
+{
+
+	// constructor
+	
+	void initWithDimensions( float theWidth , float theHeight )
+	{
+	
+		Scene:initWithDimensions( self , theWidth , theHeight );
+
+		PLMass*	massA = PLMass:alloc( );
+		
+		massA:init( );
+		massA.position.x = 350;
+		massA.position.y = height - 400;
+
+		masses:addData( massA );
+		
+		GLPointP2* glPoint = GLPointP2:alloc( );
+		glPoint.initWithPoints( massA.position.x , massA.position.y );
+
+		// TRICK!!! aliasing vector struct's x and y member as float*
+		
+		free( glPoint.vertexes );
+		
+		glPoint.vertexes = (void*)&(massA.position.x);		
+		glPoints:addData( glPoint );
+		
+		// walls
+
+		PLVector* vectorA = PLVector:alloc( );	// needs release
+		PLVector* vectorB = PLVector:alloc( );	// needs release
+		PLVector* vectorC = PLVector:alloc( );	// needs release
+		PLVector* vectorD = PLVector:alloc( );	// needs release
+		
+		vectorA:initWithPoints( 250 , 500 );
+		vectorB:initWithPoints( 270 , 180 );
+		vectorC:initWithPoints( 730 , 50 );
+		vectorD:initWithPoints( 870 , 550 );
+		
+		PLSegment* segmentA = PLSegment:alloc( );	// needs release
+		PLSegment* segmentB = PLSegment:alloc( );	// needs release
+		PLSegment* segmentC = PLSegment:alloc( );	// needs release
+		
+		segmentA:initWithVectors( vectorA , vectorB );
+		segmentB:initWithVectors( vectorB , vectorC );
+		segmentC:initWithVectors( vectorC , vectorD );
+
+		vectorA.release( );
+		vectorB.release( );
+		vectorC.release( );
+		vectorD.release( );
+		
+		segments.addData( segmentA );
+		segments.addData( segmentB );
+		segments.addData( segmentC );
+
+		GLSegment* glSegmentA = GLSegment:alloc( );
+		GLSegment* glSegmentB = GLSegment:alloc( );
+		GLSegment* glSegmentC = GLSegment:alloc( );
+		
+		glSegmentA:initWithPoints( 	segmentA.pointA.x , segmentA.pointA.y , 
+									segmentA.pointB.x , segmentA.pointB.y );
+		glSegmentB:initWithPoints( 	segmentB.pointA.x , segmentB.pointA.y , 
+									segmentB.pointB.x , segmentB.pointB.y );
+		glSegmentC:initWithPoints( 	segmentC.pointA.x , segmentC.pointA.y , 
+									segmentC.pointB.x , segmentC.pointB.y );
+		
+		glSegments:addData( glSegmentA );
+		glSegments:addData( glSegmentB );
+		glSegments:addData( glSegmentC );
+			
+	}
+
+}

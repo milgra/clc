@@ -1,0 +1,152 @@
+#include "CLObject.clc"
+
+TLPixelFont:CLObject
+{
+
+	float*	data;
+	int		length;
+	char	character;
+
+	float	width;
+	float	height;
+	
+	
+	void initWithCharacter( char theCharacter )
+	{
+		
+		CLObject:init( self );
+	
+		const char* pattern = getPattern( theCharacter );
+		const char* counter = pattern;
+		
+		character = theCharacter;
+		length = 0;
+		while ( *counter != '\0' )
+		{
+			if ( *counter == '1' ) length += 2;
+			 counter += 1;
+		}
+		
+		data = malloc( sizeof( float ) * length );
+
+		int	   index = 0;
+		float  x 	 = 0.0;
+		float  y 	 = 0.0;
+		
+		while ( *pattern != '\0' )
+		{
+		
+			switch ( *pattern )
+			{
+			
+				case '1' : 
+				{
+					data[ index++ ] = x;
+					data[ index++ ] = y;
+					x += 1.0;
+					break;
+				}
+				case '0' : 
+				{
+					x += 1.0;
+					break;
+				}
+				case ' ' : 
+				{
+					width = x + 1;
+					x =  0.0;
+					y += 1;
+					break;
+				}
+			
+			}
+			
+			height = y + 1;
+			
+			pattern += 1;
+		
+		}
+	
+	}
+	
+	
+	void destruct( )
+	{
+
+		free( data );
+
+		CLObject:destruct( self );
+	
+	}
+	
+
+	const char* getPattern( char theCharacter )
+	{
+	
+		switch ( theCharacter )
+		{
+			case 'A' : return "000 111 101 111 101 101"; break;
+			case 'B' : return "000 110 101 110 101 110"; break;
+			case 'C' : return "000 111 100 100 100 111"; break;
+			case 'D' : return "000 110 101 101 101 110"; break;
+			case 'E' : return "000 111 100 111 100 111"; break;
+//			case 'É' : return "010 111 100 111 100 111"; break;
+			case 'F' : return "000 111 100 111 100 100"; break;
+			case 'G' : return "000 111 100 101 101 111"; break;
+			case 'H' : return "000 101 101 111 101 101"; break;
+			case 'I' : return "0 1 1 1 1 1"; break;
+//			case 'Í' : return "1 0 1 1 1 1"; break;
+			case 'J' : return "000 001 001 001 101 111"; break;
+			case 'K' : return "000 101 101 110 101 101"; break;
+			case 'L' : return "000 100 100 100 100 111"; break;
+			case 'M' : return "00000 11111 10101 10101 10101 10101"; break;
+			case 'N' : return "000 111 101 101 101 101"; break;
+			case 'O' : return "000 111 101 101 101 111"; break;
+//			case 'Ó' : return "010 111 101 101 101 111"; break;
+//			case 'Ö' : return "101 000 111 101 101 111"; break;
+//			case 'Ő' : return "101 111 101 101 101 111"; break;
+			case 'P' : return "000 111 101 111 100 100"; break;
+			case 'Q' : return "000 111 101 101 101 111 001"; break;
+			case 'R' : return "000 111 101 110 101 101"; break;
+			case 'S' : return "000 111 100 111 001 111"; break;
+			case 'T' : return "000 111 010 010 010 010"; break;
+			case 'U' : return "000 101 101 101 101 111"; break;
+//			case 'Ú' : return "010 101 101 101 101 111"; break;
+//			case 'Ü' : return "101 000 101 101 101 111"; break;
+//			case 'Ű' : return "101 101 101 101 101 111"; break;
+			case 'V' : return "000 101 101 101 101 010"; break;
+			case 'W' : return "00000 10101 10101 10101 10101 11111"; break;
+			case 'X' : return "000 101 101 010 101 101"; break;
+			case 'Y' : return "000 101 101 111 010 010"; break;
+			case 'Z' : return "000 111 001 111 100 111"; break;
+			case '0' : return "000 010 101 101 101 010"; break;
+			case '1' : return "00 01 11 01 01 01"; break;
+			case '2' : return "000 110 001 010 100 111"; break;
+			case '3' : return "000 110 001 110 001 110"; break;
+			case '4' : return "000 100 101 111 010 010"; break;
+			case '5' : return "000 111 100 111 001 110"; break;
+			case '6' : return "000 011 100 111 101 111"; break;
+			case '7' : return "000 111 001 011 001 001"; break;
+			case '8' : return "000 111 101 111 101 111"; break;
+			case '9' : return "000 111 101 111 001 111"; break;
+			case '.' : return "0 0 0 0 0 1"; break;
+			case '!' : return "0 1 1 1 0 1"; break;
+			case '?' : return "0000 0110 1001 0010 0000 0010"; break;
+			case ':' : return "0 0 1 0 1 0"; break;
+			case ' ' : return "0 0 0 0 0 0"; break;
+			case '/' : return "000 001 001 010 100 100"; break;
+			case '-' : return "000 000 000 111 000 000"; break;
+			case '+' : return "000 000 010 111 010 000"; break;
+			case 'l' : return "000 001 010 100 010 001"; break;
+			case 'r' : return "000 100 010 001 010 100"; break;
+			case 'u' : return "00000 00000 00100 01010 10001 00000"; break;
+			case 'd' : return "00000 00000 10001 01010 00100 00000"; break;
+			case '<' : return "0000 1111 1000 1000 1000 0000"; break;
+			case '>' : return "0000 1111 0001 0001 0001 0000"; break;
+		}
+
+		return "\0";
+	
+	}
+
+}

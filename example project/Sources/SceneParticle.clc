@@ -1,0 +1,57 @@
+#include "Scene.clc"
+#include "PLVector.clc"
+
+
+SceneParticle:Scene
+{
+
+	// constructor
+	
+	void initWithDimensions( float theWidth , float theHeight )
+	{
+	
+		Scene:initWithDimensions( self , theWidth , theHeight );
+
+		PLMass*		massA 		= PLMass:alloc( );
+		PLVector* 	vectorA 	= PLVector:alloc( );
+		PLVector* 	vectorB 	= PLVector:alloc( );
+		PLSegment* 	segmentA 	= PLSegment:alloc( );
+		
+		massA:init( );
+		massA.position.x = width / 2;
+		massA.position.y = height - 200;
+
+		vectorA:initWithPoints( 0 , 10 );
+		vectorB:initWithPoints( width , 10 );
+		
+		segmentA:initWithVectors( vectorA , vectorB );
+		
+		vectorA.release( );
+		vectorB.release( );
+		
+		masses:addData( massA );
+		segments:addData( segmentA );
+		
+		// gl scene
+		
+		GLPointP2* glPoint = GLPointP2:alloc( );
+		glPoint.initWithPoints( massA.position.x , massA.position.y );
+
+		// TRICK!!! aliasing vector struct's x and y member as float*
+		
+		free( glPoint.vertexes );
+        
+        printf( "\nmass " ); massA.describe( );
+		
+		glPoint.vertexes = (void*)&(massA.position.x);
+		
+		GLSegment* glSegmentA = GLSegment:alloc( );
+		glSegmentA:initWithPoints( 	segmentA.pointA.x , segmentA.pointA.y , 
+									segmentA.pointB.x , segmentA.pointB.y );
+		
+		glPoints:addData( glPoint );
+		glSegments:addData( glSegmentA );
+			
+	}
+
+}

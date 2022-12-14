@@ -1,0 +1,770 @@
+#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+
+#include "CLObject.clc"
+#include "CLString.clc"
+#include "CLObjectList.clc"
+#include "CLStringObjectList.clc"
+
+#include "Creator.clc"
+#include "Analyzer.clc"
+#include "Tokenizer.clc"
+#include "Constants.clc"
+#include "FileElements.clc"
+#include "ClassElements.clc"
+
+
+Main:CLObject
+{
+
+	Creator*			creator;
+	Analyzer*			analyzer;
+	Tokenizer*			tokenizer;
+
+	CLString*           targetPath;
+    Constants*          constants;
+	FileElements*		collector;
+	CLObjectList*		pathsList;
+
+
+	// constructor , app entering point
+
+	int init (	int			theCount , 
+				const char* theTokens[ ]  )
+	{
+	
+		int	paraCount;
+		char** paraTokens;
+		FileElements* fileElements;
+
+		//-- debug
+
+//		char* dbgtokens[10] =
+//		{
+//			"clc0.7" ,
+//			"Main.clc" ,
+//			"-p" , "/Users/milgra/Desktop/Cloud/Work/Compiler/Sources/" ,
+//			"-p" , "/Users/milgra/Desktop/Cloud/Work/Compiler/Sources/CoreLib/" ,
+//			"-p" , "/Users/milgra/Desktop/Cloud/Work/Compiler/Sources/DataClass/" ,
+//			"-o" , "/Users/milgra/Desktop/Cloud/Work/Compiler/Sources/"
+//		};
+//		
+//		paraCount  = 10;
+//		paraTokens = dbgtokens;
+
+		//-- debug
+
+		paraCount = theCount;
+		paraTokens = (char**) theTokens;
+
+		printf( "clcc 0.7 by Milan Toth\n" );
+
+		if ( paraCount > 1 )
+		{
+
+			// init
+
+			creator:alloc( );       // needs release
+            creator:init( );
+			analyzer:alloc( );      // needs release
+            analyzer:init( );
+			tokenizer:alloc( );     // needs release
+            tokenizer:init( );
+			
+            constants:alloc( );     // needs release
+            constants:init( );
+			collector:alloc( );		// needs release
+            collector:init( );
+			pathsList:alloc( );		// needs release
+            pathsList:init( );
+			targetPath:alloc( );    // needs release
+            targetPath:init( );
+			
+			// setup
+            
+            analyzer.constants = constants;
+
+			// analyze parameters
+
+            analyzeParameters( paraCount , paraTokens );
+
+			// compile
+            
+            for ( CLObject* object : collector.classesList )
+            {
+
+                // class's file elements
+			
+				fileElements:alloc( );	// needs release
+				fileElements:init( );
+
+                // compile
+
+				compileClass( ( CLString* ) object , fileElements );
+					 
+				// filter duplicate settings and add them to collector
+
+				filterAndAddSettings( 
+					fileElements.settingsList ,
+					fileElements.settingNamesList ,
+					collector.settingsList ,
+					collector.settingNamesList );
+
+				// add all non-present used classes to allClassesList, to compile every occuring class
+				
+				CLStringObjectList:addStringsAsUnique( 
+					NULL , 
+					fileElements.classesList ,
+					collector.classesList );
+
+				// add structures and methods
+						
+				collector.functionsList.addObjectsInObjectList( fileElements.functionsList );		
+				collector.structuresList.addObjectsInObjectList( fileElements.structuresList );
+				collector.functionHeadersList.addObjectsInObjectList( fileElements.functionHeadersList );		
+				collector.structureHeadersList.addObjectsInObjectList( fileElements.structureHeadersList );
+				
+				// cleanup
+				
+				fileElements:release( );
+
+			}
+            
+            // debug
+			
+			// collector.describe( );
+            
+            // write files
+			
+			writeFiles( collector );
+			
+			// cleanup
+
+			creator:release( );
+            analyzer:release( );
+            tokenizer:release( );
+			
+            constants:release( );
+			collector:release( );
+			pathsList:release( );
+			targetPath:release( );
+		
+		}
+		else printf( "Usage : clcc ClassNameA ClassNameB ClassNameN -p SourcePathA -p SourcePathB -p SourcePathN -o OutputPath" );
+		
+		// new line for the terminal output
+		
+		printf( "\n" );
+		
+		while (1) { }
+
+		return 0;
+		
+	}
+    
+    
+    // analyze parameters
+    
+    void analyzeParameters( int    theCount ,
+							char** theTokens )
+    {
+
+        int	index;
+        char* oneToken;
+		CLString* onePath;
+		CLString* oneFile;
+		CLString* oneClass;
+		
+		// init
+
+		index = 1;
+        
+        // print parameters for feedback
+
+        printf( "\n" );
+        
+        for ( index = 1 ;
+              index < theCount ;
+              index++ )
+        {
+            printf( "%s " , theTokens[index] );
+            if ( theTokens[ index ][ 0 ] != '-' ) printf( "\n" );
+        }
+        
+        // analyze tokens
+        
+        index = 1;
+        while ( index < theCount )
+        {
+        
+			oneToken = theTokens[ index ];
+            
+            if ( oneToken[ 0 ] == '-' )
+            {
+            
+                // check switches
+            
+                if ( oneToken[ 1 ] == 'p' && index < theCount - 1)
+                {
+
+                    // path
+
+					onePath:alloc( );	// needs release
+                    onePath:init( );
+                    onePath:appendCString( theTokens[ index + 1 ] );
+                    
+                    pathsList:addObject( ( CLObject* ) onePath );
+                    
+                    onePath:release( );	// release
+                    index += 1;
+
+                }
+                else if ( oneToken[ 1 ] == 'o' && index < theCount - 1 )
+                {
+                
+                    // output path
+                
+                    targetPath:appendCString( theTokens[ index + 1 ] );
+                    index += 1;
+                    
+                }
+
+            }
+            else
+            {
+            
+                // token without minus is class
+
+                oneFile:alloc( );	// needs release
+                oneFile:init( );
+                oneFile:appendCString( theTokens[ index ] );
+				
+				oneClass = oneFile:stringByRemovingExtension( );	// needs release
+                
+                collector.classesList.addObject( ( CLObject* ) oneClass );
+                
+				oneFile:release( );
+                oneClass:release( );
+            
+            }
+            
+            index += 1;
+        
+        }
+        
+        // set default path values if needed
+        
+        if ( pathsList.length == 0 )
+        {
+        
+            onePath:alloc( );
+            onePath:init( );
+            pathsList:addObject( ( CLObject* ) onePath );
+            
+        }
+		
+		if ( targetPath.length == 0 ||
+			(targetPath.last)->character == '/' ||
+			(targetPath.last)->character == '\\' )
+		{
+			targetPath.appendCString( "clcsrc" );
+		}
+    
+    }
+
+
+	// compiles given class into settings, structures and methods
+	
+	void compileClass(  CLString*       theClassName ,
+                        FileElements*	theFileElements )
+	{
+
+		ClassElements* classElements;
+		CLObjectList* parentNamesList;
+		CLObjectList* parentElementsList;
+	
+		printf( "\ncompiling class " );
+		theClassName.describe( );
+        
+        // alloc instances
+		
+		classElements:alloc( );			// needs release
+        classElements:init( theClassName );
+		parentNamesList:alloc( );		// needs release
+        parentNamesList:init( );
+		parentElementsList:alloc( );	// needs release
+        parentElementsList:init( );
+
+		// start parent names with the class name itself
+		
+		parentNamesList:addObject( ( CLObject* ) theClassName );
+
+		// read up classes, analyze their structure and organize them
+        
+        for ( CLObject* object : parentNamesList )
+        {
+
+			createAndOrganizeLines(
+				( CLString* ) object ,
+				classElements ,
+				parentNamesList ,
+				parentElementsList );
+
+		}
+
+        // add used classes in unused classes chain
+        
+        classElements.unusedClassNamesList.addObjectsInObjectList( classElements.usedClassNamesList );
+        CLStringObjectList:removeStrings( NULL , parentNamesList , classElements.unusedClassNamesList );
+
+		// detect language elements in members
+
+		analyzer:analyzeMembers( classElements );
+		
+		// detect language elements in methods
+
+		analyzer:analyzeMethods( classElements );
+
+		// creates class, instance structs and struct forward declarations
+		
+		creator:createStructures(	  classElements , 
+									  parentNamesList ,
+									  parentElementsList ,
+									  theFileElements.structuresList ,
+									  theFileElements.structureHeadersList );
+
+		// creates class allocator, instance allocator and other methods and function headers also 
+
+		creator:createFunctions(	  classElements ,
+									  parentNamesList ,
+									  parentElementsList ,
+									  theFileElements.functionsList ,
+									  theFileElements.functionHeadersList );
+								
+		// add classes and settings to target chains
+
+		theFileElements.classesList.addObjectsInObjectList( classElements.usedClassNamesList );
+		theFileElements.settingsList.addObjectsInObjectList( classElements.settingTokensList );
+		theFileElements.settingNamesList.addObjectsInObjectList( classElements.settingNamesList );
+
+        // show unused classes
+        
+        if ( classElements.unusedClassNamesList.length > 0 )
+        {
+        
+            printf( "\nWARNING : Unused classses : " );
+            classElements.unusedClassNamesList.describe( );
+            
+        }
+		
+        // debug
+		
+		// classElements.describe( );
+		
+		// cleanup
+		
+		classElements:release( );
+		parentNamesList:release( );
+		parentElementsList:release( );
+		
+		printf( "\n" );
+		theClassName.describe( );
+		printf( " compiled" );
+
+	}
+	
+	
+	// creates statements for a class and organizes them
+	
+	void createAndOrganizeLines(    CLString*	   theClassName ,
+									ClassElements* theElements ,
+                                    CLObjectList*  theParentNamesList ,
+                                    CLObjectList*  theParentElementsList )
+	{
+
+		char nameExists;
+		struct CLLink* nameLink;
+		struct CLLink* dataLink;
+		CLString* oneName;
+		CLObjectList* lines;
+		CLObjectList* parentNamesList;
+		ClassElements* parentElements;
+		
+		// init
+
+		lines:alloc( );					// needs release
+        lines:init( );
+        
+        // read up file into lines
+        
+		getLinesForClass( theClassName , lines );
+		
+		if ( lines.length > 0 )
+		{
+						
+			parentElements:alloc( );	// needs release
+			parentNamesList:alloc( );	// needs release
+
+            parentElements:init( theClassName );
+            parentNamesList:init( );
+
+			// extract elements from lines
+
+			analyzer.organizeTokens(	lines ,
+										parentElements ,
+										parentNamesList );
+
+			// store elements
+			
+			theParentElementsList:addObject( ( CLObject* ) parentElements );
+
+			// add compositing classes to classnameschain to emerge in all compositing classes recursively
+
+			CLStringObjectList:addStringsAsUnique( NULL , parentNamesList , theParentNamesList );
+			CLStringObjectList:addStringsAsUnique( NULL , parentElements.usedClassNamesList , theElements.usedClassNamesList );
+
+			// combine settings and setting names in one chain
+			
+			theElements.settingNamesList.addObjectsInObjectList( parentElements.settingNamesList );
+			theElements.settingTokensList.addObjectsInObjectList( parentElements.settingTokensList );
+
+			nameLink = parentElements.memberNamesList.head;
+			dataLink = parentElements.memberTokensList.head;
+
+			// combine members and member names in one chain
+
+			while ( nameLink != NULL )
+			{
+
+				oneName = ( CLString* ) nameLink->data;
+				nameExists = CLStringObjectList:containsString( NULL , oneName , theElements.memberNamesList );
+
+				if ( nameExists == 0 || oneName:equals( constants.settingString ) == 1 )
+				{
+				
+					theElements.memberNamesList.addObject( nameLink->data );
+					theElements.memberTokensList.addObject( dataLink->data );
+					
+				}
+				else printf( "\nWARNING member collision : %s" , oneName.cString( ) );
+
+				nameLink = nameLink->next;
+				dataLink = dataLink->next;
+
+			}
+
+			nameLink = parentElements.methodNamesList.head;
+			dataLink = parentElements.methodTokensList.head;
+
+			// combine methods and method names in one chain
+			
+			while ( nameLink != NULL )
+			{
+            
+				oneName	   = ( CLString* ) nameLink->data;
+				nameExists = CLStringObjectList:containsString( NULL , oneName , theElements.methodNamesList );
+
+				if ( nameExists == 0 )
+				{
+
+					theElements.methodNamesList.addObject( nameLink->data );
+					theElements.methodTokensList.addObject( dataLink->data );
+
+				}
+				
+				nameLink = nameLink->next;
+				dataLink = dataLink->next;
+                
+			}
+			
+			// cleanup
+			
+			parentElements:release( );
+			parentNamesList:release( );
+
+		}
+		else exit( 1 );	// class not found
+		
+		lines:release( );
+		
+	}
+	
+	
+	// reads up file and breaks into lins
+	
+	void getLinesForClass(  CLString*		theClassName ,
+							CLObjectList*	theLines )
+	{
+
+		char* cFilePath;
+		FILE* classFile;
+		CLString* onePath;
+		CLString* filePath;
+		CLString* classSource;
+	
+        for ( CLObject* object : pathsList )
+        {
+					
+			onePath = ( CLString* ) object;
+			
+			filePath:alloc( );						// needs release
+			filePath:init( );
+			filePath.appendString( onePath );
+			filePath.appendString( theClassName );
+			filePath.appendCString( ".clc" );
+			
+			cFilePath = filePath.cString( );
+			classFile = fopen( cFilePath , "r" );
+
+            filePath:release( );
+
+			if ( classFile != NULL )
+            {
+
+                printf( "\nReading " );
+				theClassName.describe( );
+                printf( " at %s" , cFilePath );
+
+                classSource:alloc( );				// needs release
+                classSource:init( );
+                classSource:readFilePointer( classFile );
+
+                fclose( classFile );
+                
+                tokenizer.createLines( classSource , theLines );
+
+                free( cFilePath );
+                classSource:release( );
+
+                return;
+                
+            }
+            
+			free( cFilePath );
+			
+		}
+
+		printf( "\nSource not found for class : %s" , theClassName.cString( ) );
+	
+	}
+    
+	
+	// filters settings and adds them to global collector
+	
+	void filterAndAddSettings(  CLObjectList* theCombinedSettingsList ,
+                                CLObjectList* theCombinedSettingNamesList ,
+                                CLObjectList* theSettingsList ,
+                                CLObjectList* theSettingNamesList )
+	{
+
+		char inIfdef;
+		char hasIdfef;
+		char hasEndif;
+		char isClass;
+		char isDuplicate;
+		unsigned long ifdefIndex;
+		unsigned long endifIndex;
+		struct CLLink* nameLink;
+		struct CLLink* lineLink;
+		CLString* oneName;
+		CLObjectList* oneLine;
+		
+		// init
+
+		inIfdef = 0;
+		nameLink = theCombinedSettingNamesList.head;
+		lineLink = theCombinedSettingsList.head;
+
+		while ( lineLink != NULL )
+		{
+		
+			oneName = ( CLString* ) nameLink->data;
+			oneLine	= ( CLObjectList* ) lineLink->data;
+
+			isClass = oneName.containsString( constants.classString );
+			if ( isClass == 0 )
+			{
+
+				isDuplicate = CLStringObjectList:containsString( NULL , oneName , theSettingNamesList );
+				hasIdfef	= oneName.containsString( constants.ifdefString );
+				ifdefIndex	= oneName.indexOfString( constants.ifdefString );
+
+				if ( hasIdfef == 1 && ifdefIndex == 0 ) inIfdef = 1;
+				
+				if ( inIfdef == 1 || ( inIfdef == 0 && isDuplicate == 0 ) )
+				{
+				
+					theSettingNamesList.addObject( ( CLObject* ) oneName );
+					theSettingsList.addObject( ( CLObject* ) oneLine );
+				
+				}
+
+				hasEndif   = oneName.containsString( constants.endifString );
+				endifIndex = oneName.indexOfString( constants.endifString );
+				if ( hasEndif == 1 && endifIndex == 0 ) inIfdef = 0;
+				
+			}
+
+			nameLink = nameLink->next;
+			lineLink = lineLink->next;
+
+		}
+	
+	}
+	
+	
+	// writes files
+	
+	void writeFiles( FileElements* theFileElements )
+	{
+			
+		CLString* filePath;
+        char* fileCString;
+		FILE* filePointer;
+		CLString* oneLine;
+		CLString* oneClass;
+		CLString* oneFunction;
+		
+		// init
+		
+		filePath:alloc( );
+		filePath:init( );
+		filePath:appendString( targetPath );
+		filePath:appendCString( ".h" );
+        
+		fileCString = filePath:cString( );
+		filePointer = fopen( fileCString , "w" );
+
+		if ( filePointer == NULL )
+		{
+            printf( "Cannot write header at %s, errno : %i" , fileCString , errno );
+            return;
+		}
+		else printf( "\nWriting header to %s" , fileCString );
+		
+        free( fileCString );
+		filePath:release( );
+
+		// write ifndef
+		
+		fputs( "#ifndef clcsrc_h\n" , filePointer );
+		fputs( "#define clcsrc_h\n" , filePointer );
+		
+		// settings
+
+		fputs( "#include <stdio.h>\n" , filePointer );
+		fputs( "#include <stdlib.h>\n" , filePointer );
+
+        for ( CLObject* object : theFileElements.settingNamesList )
+        {
+		
+			oneLine = ( CLString* ) object;
+			oneLine:writeToFilePointer( filePointer );
+			fputs( "\n" , filePointer );
+		
+		}
+		
+		// general structs
+		
+		fputs( creator:createGeneralStructs( ) , filePointer );
+		
+		// structure headers
+		
+        for ( CLObject* object : theFileElements.structureHeadersList )
+        {
+		
+			oneLine = ( CLString* ) object;
+			oneLine:writeToFilePointer( filePointer );
+		
+		}
+		
+		// structures
+		
+        for ( CLObject* object : theFileElements.structuresList )
+        {
+		
+			oneLine = ( CLString* ) object;
+			oneLine:writeToFilePointer( filePointer );
+		
+		}
+		
+		// cast and free headers
+		
+		fputs( "void* cast_object( void* theObject , void* theId );\n" , filePointer );
+		fputs( "void  free_object( void* theObject );\n" , filePointer );
+		
+		// function headers
+
+        for ( CLObject* object : theFileElements.functionHeadersList )
+        {
+		
+			oneLine = ( CLString* ) object;
+			oneLine:writeToFilePointer( filePointer );
+		
+		}
+
+		fputs( "#endif\n" , filePointer );
+		
+		fclose( filePointer );
+		
+		// write implementation
+
+		filePath:alloc( );
+		filePath:init( );
+        filePath:appendString( targetPath );
+        filePath:appendCString( ".c" );
+        
+        fileCString = filePath:cString( );
+		filePointer = fopen( fileCString , "w" );
+		
+		if ( filePointer == NULL ) 
+		{
+            printf( "Cannot write implementation at %s, errno : %i" , fileCString , errno );
+            return;
+		}
+		else printf( "\nWriting implementation to %s" , fileCString );
+		
+        free( fileCString );
+		filePath:release( );
+
+		// write include
+		
+		fputs( "#include \"clcsrc.h\"\n" , filePointer );		
+		
+		// get_component
+
+		fputs( creator:createCasterMethod( ) , filePointer );
+		fputs( creator:createDeallocatorMethod( ) , filePointer );
+		
+		// class instances
+		
+        for ( CLObject* object : theFileElements.classesList )
+        {
+
+			// static struct CLObject_Class* CLObject_ClassInstance= NULL;
+		
+			oneClass = ( CLString* ) object;
+			fputs( "static struct " , filePointer );
+			oneClass:writeToFilePointer( filePointer );
+			fputs( "_Class* " , filePointer );
+			oneClass:writeToFilePointer( filePointer );
+			fputs( "_ClassInstance = NULL;\n" , filePointer );
+		
+		}
+		
+		// functions
+		
+        for ( CLObject* object : theFileElements.functionsList )
+        {
+		
+			oneFunction = ( CLString* ) object;
+			oneFunction:writeToFilePointer( filePointer );		
+		
+		}
+		
+		fclose( filePointer );
+
+	}
+
+}

@@ -1,0 +1,60 @@
+#include "TLPixelText.clc"
+#include "GLBitmap.clc"
+#include "GLBitmapPixelText.clc"
+#include "GLTexture.clc"
+
+
+GLTexturePixelText:GLTexture
+{
+
+
+	void init(	char*	theText ,
+				int		theWidth ,
+				int		theHeight ,
+				int		theSize )
+	{
+
+		CLObject:init( self );
+
+		TLPixelText* 		pixelText  = TLPixelText:alloc( );
+		GLBitmapPixelText* 	foreGround = GLBitmapPixelText:alloc( );		
+		GLBitmap* 	 		backGround = GLBitmap:alloc( );		
+
+		pixelText:initWithCString( theText );
+		foreGround:initWithDimensions( theWidth , theHeight );
+		foreGround:drawPixelTextWithSize( pixelText , theSize );
+		foreGround.addShadow( );
+
+		backGround:initWithDimensions( theWidth , theHeight );		
+		backGround:fillRectangle( 0 , 0 , theWidth , theHeight , 1.0 , 1.0 , 1.0 , .5 );
+		backGround:blendBitmap( ( GLBitmap* ) foreGround , 0 , 0 );
+
+		glGenTextures( 1 , &glid );
+		glBindTexture( GL_TEXTURE_2D , glid );
+
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_S	   , GL_CLAMP_TO_EDGE );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_T	   , GL_CLAMP_TO_EDGE );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER , GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER , GL_LINEAR_MIPMAP_LINEAR );
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			backGround.width,
+			backGround.height,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			backGround.data );				
+
+		glGenerateMipmap( GL_TEXTURE_2D );
+		
+		backGround.release( );
+		foreGround.release( );
+		pixelText.release( );
+	
+	}
+
+
+}

@@ -1,0 +1,55 @@
+#include "CLObject.clc"
+#include "GLShader.clc"
+
+
+ShaderP2:CLObject
+{
+
+	GLShader* shader;
+	
+	
+	// constructor
+
+	void init ( )
+	{
+
+		printf( "\nShaderP2 init" );
+
+		CLObject:init( self );
+	
+		const char* SIMPLE_VERTEX =
+			"attribute   vec4 positionVector;\n"
+			"uniform     mat4 projectionMatrix;\n"
+			"void main ( )\n"
+			"{\n"
+				"gl_Position     = projectionMatrix * positionVector;\n"
+			"}\n";
+		const char* SIMPLE_FRAGMENT =
+		    "void main( )\n"
+    		"{\n"
+			"gl_FragColor = vec4( 0.0 , 0.0 , 0.0 , 1.0 );\n"
+		    "}\n";
+
+		shader:alloc( );
+		shader:init( "SimpleShader" );
+		shader:addVertexShader( SIMPLE_VERTEX );
+		shader:addFragmentShader( SIMPLE_FRAGMENT );
+		shader:addAttributeLocation( 0 , 2 , "positionVector" );
+		shader:addUniformIdentifier( "projectionMatrix" );
+		shader:link( );
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+
+		printf( "\nShaderP2 destruct" );
+	
+		shader.release( );
+		CLObject:destruct( self );
+	
+	}
+
+}

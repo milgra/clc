@@ -1,0 +1,43 @@
+#include "CLObject.clc"
+
+
+GLDrawable:CLObject
+{
+
+	GLuint		mode;
+	GLuint		texture;
+
+	GLfloat* 	vertexes;
+	GLsizei		vertexCount;
+	long		vertexesSize;
+
+	GLushort* 	indexes;
+	GLsizei		indexCount;
+	long		indexesSize;
+	
+	
+	// constructor
+	
+	void init( )
+	{
+	
+		// printf( "\nGLDrawable init" );
+	
+		CLObject:init( self );
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		free( vertexes );
+		free( indexes );
+
+		CLObject:destruct( self );
+	
+	}
+
+}

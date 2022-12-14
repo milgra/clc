@@ -1,0 +1,114 @@
+#include "CLObject.clc"
+#include "PLVector.clc"
+#include "PLMass.clc"
+
+PLSpacer:CLObject
+{
+
+	PLMass*	massA;
+	PLMass*	massB;
+	float	space;
+
+	PLVector* respaceVectorA;
+	PLVector* respaceVectorB;
+
+
+	// constructor
+
+	void initWithMasses(	PLMass* theMassA , 
+							PLMass* theMassB )
+	{
+
+		// printf( "\nSpacer init %i" , ( int ) self );
+
+		CLObject:init( self );
+	
+		massA = theMassA;
+		massB = theMassB;
+		
+		massA.retain( );
+		massB.retain( );
+
+        respaceVectorA = PLVector:alloc( );
+        respaceVectorB = PLVector:alloc( );
+		
+		respaceVectorA:initWithPoints( 0 , 0 );
+		respaceVectorB:initWithPoints( 0 , 0 );
+		
+		// calculate space
+		
+		float dx = massA.position.x - massB.position.x;
+		float dy = massA.position.y - massB.position.y;
+		
+		space = sqrt( dx * dx + dy * dy );
+    
+    }
+	
+	
+	// destructor
+	
+	void destruct ( )
+	{
+	
+		// printf( "\nSpacer destruct %i" , ( int ) self );
+
+		massA.release( );
+		massB.release( );
+		
+		respaceVectorA.release( );
+		respaceVectorB.release( );
+
+		CLObject:destruct( self );
+		
+	}
+
+
+	// respaces masses
+
+    void respace( )
+    {
+
+		// printf( "Spacer respace %i\n" , ( int ) self );
+
+		// calculate actual space
+
+        float dx = massB.position.x + massB.force.x - ( massA.position.x + massA.force.x );
+        float dy = massB.position.y + massB.force.y - ( massA.position.y + massA.force.y );
+		
+		respaceVectorA:setXY( dx , dy );
+		respaceVectorB:setXY( dx , dy );
+
+//        if ( massA.baseWalls.length == 0 && 
+//             massB.baseWalls.length == 0 )
+//        {
+        
+            float delta = ( respaceVectorA.length - space ) / 3;
+			
+			respaceVectorA:multiply(  delta / respaceVectorA.length );
+			respaceVectorB:multiply( -delta / respaceVectorB.length );
+			
+			PLVector:addVector( massA.force , respaceVectorA );
+			PLVector:addVector( massB.force , respaceVectorB );
+        
+//        }
+//        else if ( massA.baseWalls.length > 0 )
+//        {
+//        
+//           vectorB.multiply( - space /CLVectorB.length );
+//			struct PLVector* massBforce = massB.force;
+//            massBforce.addVector(CLVectorB );
+//        
+//        }
+//        else
+//        {
+//        
+//           vectorA.multiply( space /CLVectorB.length );
+//			struct PLVector* massAforce = massA.force;
+//			massAforce.addVector(CLVectorA );
+//        
+//        }
+//
+    
+    }
+	
+}

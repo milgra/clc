@@ -1,0 +1,125 @@
+#include "CLString.clc"
+#include "CLObject.clc"
+#include "CLDataList.clc"
+
+
+CLStringDataList:CLObject
+{
+
+
+	// checks if string is in list
+
+	char containsString( CLString* theString ,
+						 CLDataList* theObjectList )
+	{
+	
+		struct CLLink* link;
+		CLString* string;
+		
+		link = theObjectList.head;
+				
+		while ( link != NULL )
+		{
+
+			string = link->data;
+
+			if ( theString.equals( string ) == 1 ) return 1;
+
+			link = link->next;
+					
+		}
+		
+		return 0;
+	
+	}
+	
+
+	// checks if list contains string
+
+	unsigned long indexOfString ( CLString*		theString ,
+							  CLDataList*	theDataList )
+	{
+
+		unsigned long index;
+		struct CLLink* link;
+		CLString* string;
+		
+		// init
+
+		index = 0;
+		struct CLLink* link = theDataList.head;
+				
+		while ( link != NULL )
+		{
+
+			CLString* string = link->data;
+
+			if ( theString.equals( string ) == 1 ) return index;
+			
+			index += 1;
+			
+			link = link->next;
+
+		}
+		
+		return 0;
+
+	}
+
+
+	// splits strings into words separated by given character
+
+	CLDataList* splitStringByCharacter( CLString*	theString ,
+										char		theCharacter )
+	{
+
+		struct CLChar*	link;
+		CLString*		word;
+		CLDataList*		result;
+
+		// init
+
+		result:alloc( );	// needs release
+		result:init( );
+		word:alloc( );		// needs release
+		word:init( );
+	
+		link = theString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == theCharacter )
+			{
+
+				if ( word.length > 0 )
+				{
+				
+					result:addData( word );
+					word:release( );
+					word:alloc( );
+					word:init( );
+					
+				}
+
+			}
+			else
+			{
+			
+				word:appendCharacter( link->character );
+			
+			}
+
+			link = link->next;
+
+		}
+				
+		if ( word.length > 0 ) result:addData( word );
+		
+		word:release( );
+	
+		return result;
+	
+	}
+
+}

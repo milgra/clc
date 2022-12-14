@@ -1,0 +1,82 @@
+#include "CLObject.clc"
+#include "GLBitmap.clc"
+
+
+GLTexture:CLObject
+{
+
+	GLuint glid;
+	
+	
+	// constructor
+	
+	void initWithGLBitmap( GLBitmap* theBitmap )
+	{
+
+		CLObject:init( self );
+	
+		glGenTextures( 1 , &glid );
+		glBindTexture( GL_TEXTURE_2D , glid );
+
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_S	   , GL_CLAMP_TO_EDGE );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_T	   , GL_CLAMP_TO_EDGE );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER , GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER , GL_LINEAR_MIPMAP_LINEAR );
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			theBitmap.width,
+			theBitmap.height,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			theBitmap.data );				
+
+		glGenerateMipmap( GL_TEXTURE_2D );
+		
+	}
+	
+	
+	void initWithDimensions( int theWidth , int theHeight )
+	{
+
+		CLObject:init( self );
+	
+		glGenTextures( 1 , &glid );
+		glBindTexture( GL_TEXTURE_2D , glid );
+
+//		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_S	   , GL_CLAMP_TO_EDGE );
+//		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_T	   , GL_CLAMP_TO_EDGE );
+//		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER , GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER , GL_LINEAR );
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			theWidth,
+			theHeight,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			NULL );				
+
+		glGenerateMipmap( GL_TEXTURE_2D );
+			
+	}
+	
+
+	// destructor
+	
+	void destruct( )
+	{
+
+		glDeleteTextures( 1 , &(glid) );
+
+		CLObject:destruct( self );
+
+	}
+
+}

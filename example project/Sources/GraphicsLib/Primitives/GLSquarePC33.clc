@@ -1,0 +1,80 @@
+#import "GLDrawablePC33.clc"
+
+
+GLSquarePC33:GLDrawablePC33
+{
+
+
+	// constructor
+
+	void init( )
+	{
+	
+		GLDrawablePC33:init( self );
+		
+		// setup
+
+		texture 		= 0;
+		mode 			= GL_TRIANGLES;
+		
+		indexCount 		= 6;
+		vertexCount 	= 4;
+
+		vertexesSize 	= sizeof( GLfloat ) * 6 * vertexCount;
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+
+		vertexes 		= malloc( vertexesSize );
+		indexes 		= malloc( indexesSize );
+		
+		GLfloat constva[] =
+		{
+
+
+			//X   Y   Z			NX	NY	NZ			R	G	B	A
+			
+			//    2       1   2    front face
+			// y
+			//  x 1   3       3
+
+			0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f
+			
+		};
+
+		// index array
+		
+		GLushort constia[] =
+		{ 
+		
+			0 , 2 , 1 , 1 , 2 , 3
+			
+		};
+
+		memcpy( vertexes , constva , vertexesSize );			
+		memcpy( indexes  , constia , indexesSize );			
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		GLDrawablePC33:destruct( self );
+		
+	}
+
+
+	// check if square contains a 3d point	
+	
+	char contains( float theX , float theY , float theZ )
+	{
+
+		return ( theX >= dx && theX <= dx + sx && theY >= dy && theY <= dy + sy );
+	
+	}	
+
+}

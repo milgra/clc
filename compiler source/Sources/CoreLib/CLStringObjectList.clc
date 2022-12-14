@@ -1,0 +1,227 @@
+#include "CLString.clc"
+#include "CLObject.clc"
+#include "CLObjectList.clc"
+
+
+CLStringObjectList:CLObject
+{
+
+
+	// checks if string is in list
+
+	char containsString( CLString* theString ,
+						 CLObjectList* theObjectList )
+	{
+	
+		struct CLLink* link;
+		CLString* string;
+		
+		link = theObjectList.head;
+				
+		while ( link != NULL )
+		{
+			
+			string = ( CLString* ) link->data;
+
+			if ( theString.equals( string ) == 1 ) return 1;
+
+			link = link->next;
+					
+		}
+		
+		return 0;
+	
+	}
+
+
+	// checks if list contains string
+
+	unsigned long indexOfString( CLString*		theString ,
+								 CLObjectList*	theObjectList )
+	{
+	
+		unsigned long index;
+		struct CLLink* link;
+		CLString* string;
+		
+		// init
+
+		index = 0;
+		link = theObjectList.head;
+				
+		while ( link != NULL )
+		{
+			
+			string = ( CLString* ) link->data;
+
+			if ( theString.equals( string ) == 1 ) return index;
+
+			index += 1;
+			
+			link = link->next;
+					
+		}
+		
+		return 0;
+
+	}
+    
+	
+	// removes given string from object list
+    
+    void removeString(	CLString*	  theString ,
+						CLObjectList* theObjectList )
+    {
+    
+		struct CLLink* link;
+        CLObject* result;
+		CLString* string;
+
+		// init
+
+		link   = theObjectList.head;
+		result = NULL;
+				
+		while ( link != NULL )
+		{
+
+			string = ( CLString* ) link->data;
+
+			if ( theString.equals( string ) == 1 )
+            {
+                result = link->data;
+                break;
+            }
+			
+			link = link->next;
+					
+		}
+		
+        if ( result != NULL ) theObjectList.removeObject( result );
+    
+    }
+	    
+	
+	// removes given strings from object list
+    
+    void removeStrings( CLObjectList* theStringList ,
+						CLObjectList* theObjectList )
+    {
+    
+		struct CLLink* link;
+		
+		link = theStringList.head;
+        
+        while( link != NULL )
+        {
+        
+            CLString* string;
+			string = ( CLString* ) link->data;
+            removeString( string , theObjectList );
+            link = link->next;
+        
+        }
+    
+    }
+    
+	
+	// adds string to list if it's not exist
+    
+    void addStringAsUnique(	CLString*		theString ,
+							CLObjectList*	theObjectList )
+    {
+
+        char contains;
+		
+		// init
+		
+		contains = containsString( theString , theObjectList );
+        if ( contains == 0 ) theObjectList.addObject( ( CLObject* ) theString );
+    
+    }
+
+    
+	// adds strings to list if they're not exist
+    
+    void addStringsAsUnique( CLObjectList* theStringList ,
+							 CLObjectList* theObjectList )
+    {
+	        
+        struct CLLink* link;
+		
+		// init
+		
+		link = theStringList.head;
+        
+        while ( link != NULL )
+        {
+
+            CLString* string;
+			string = ( CLString* ) link->data;
+            
+            addStringAsUnique( string , theObjectList );
+            
+            link = link->next;
+            
+        }
+        
+    }
+
+
+	// splits strings into words separated by given character
+
+	CLObjectList* splitStringByCharacter(	CLString*	theString ,
+											char		theCharacter )
+	{
+	
+		struct CLChar*	link;
+		CLString*		word;
+		CLObjectList*	result;
+
+		// init
+
+		result:alloc( );	// needs release
+		word:alloc( );		// needs release
+		
+		result.init( );
+		word.init( );
+	
+		link = theString.head;
+
+		while ( link != NULL )
+		{
+
+			if ( link->character == theCharacter )
+			{
+
+				if ( word.length > 0 )
+				{
+				
+					result:addObject( ( CLObject* ) word );
+					word.release( );
+					word = CLString:alloc( );
+					word.init( );
+					
+				}
+
+			}
+			else
+			{
+			
+				word:appendCharacter( link->character );
+			
+			}
+
+			link = link->next;
+
+		}
+				
+		if ( word.length > 0 ) result:addObject( ( CLObject* ) word );
+		
+		word.release( );
+	
+		return result;
+	
+	}
+
+}

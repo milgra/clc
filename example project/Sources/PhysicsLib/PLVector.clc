@@ -1,0 +1,115 @@
+// Physics Library Vector
+//
+
+#include <math.h>
+#include "CLObject.clc"
+
+PLVector:CLObject
+{
+
+	float	x;
+	float	y;
+	float	angle;
+	float	length;
+	
+	// initializer
+
+    void initWithPoints( float theX , float theY )
+    {
+	
+		// initialize super class
+	
+		CLObject:init( self );
+
+		x       = theX;
+		y       = theY;
+		angle   = atan2( y , x );
+		length  = sqrt( x * x + y * y );
+
+		// printf( "Vector init %li %f %f retain %li\n" , ( long ) self , theX , theY , retainCount );
+    
+    }
+
+
+	// initializer
+
+    void set(PLVector* theVector )
+    {
+
+//		printf( "Vector set %i %f %f\n" , ( int ) self , theVector.x , theVector.y );
+		
+		x       = theVector.x;
+		y       = theVector.y;
+		angle   = theVector.angle;
+		length  = theVector.length;
+    
+    }
+
+
+	// initializer
+
+    void setXY( float theX , float theY )
+    {
+
+//		printf( "Vector setXY %i %f %f\n" , ( int ) self , theX , theY );
+		
+		x       = theX;
+		y       = theY;
+		angle   = atan2( y , x );
+		length  = sqrt( x * x + y * y );
+    
+    }
+
+
+    // resetsCLVector
+
+    void reset( )
+    {
+
+//		printf( "Vector reset %i\n" , ( int ) self );
+
+        x       = 0;
+        y       = 0;
+        angle   = 0;
+        length  = 0;
+    
+    }
+    
+
+    // Multiplies theCLVector with the given scalar
+    
+    void multiply( float theValue )
+    {
+
+//		printf( "Vector multiply %i %f\n" , ( int ) self , theValue );
+
+        x       *= theValue;
+        y       *= theValue;
+        length  *= theValue;
+    
+    }
+    
+
+    // AddsCLVector
+
+    void addVector(PLVector* theVector )
+    {
+
+		// printf( "Vector addVector %i %i\n" , ( int ) self , ( int ) theVector );
+    
+        x       += theVector.x;
+        y       += theVector.y;
+		angle   = atan2( y , x );
+		length  = sqrt( x * x + y * y );
+    
+    }
+	
+	
+	// describes plvector
+	
+	void describe ( )
+	{
+		printf( "\nPLVector %f %f" , x , y );
+	}
+
+}

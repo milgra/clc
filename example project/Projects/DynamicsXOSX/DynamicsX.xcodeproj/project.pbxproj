@@ -1,0 +1,509 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3316016D184E0A65003CD999 /* MLMatrix4.c in Sources */ = {isa = PBXBuildFile; fileRef = 33160157184E0A2F003CD999 /* MLMatrix4.c */; };
+		3316016E184E0A65003CD999 /* MLVector3.c in Sources */ = {isa = PBXBuildFile; fileRef = 33160159184E0A2F003CD999 /* MLVector3.c */; };
+		3316016F184E0A65003CD999 /* MLVector4.c in Sources */ = {isa = PBXBuildFile; fileRef = 3316015B184E0A2F003CD999 /* MLVector4.c */; };
+		33160171184E0A78003CD999 /* clcsrc.c in Sources */ = {isa = PBXBuildFile; fileRef = 33160130184E0A2F003CD999 /* clcsrc.c */; };
+		336F922917B924F400B065F9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 336F922817B924F400B065F9 /* Cocoa.framework */; };
+		336F923317B924F400B065F9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 336F923117B924F400B065F9 /* InfoPlist.strings */; };
+		336F923517B924F400B065F9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 336F923417B924F400B065F9 /* main.m */; };
+		336F923C17B924F400B065F9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 336F923B17B924F400B065F9 /* AppDelegate.m */; };
+		336F923F17B924F400B065F9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 336F923D17B924F400B065F9 /* MainMenu.xib */; };
+		336F924617B9259700B065F9 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 336F924517B9259700B065F9 /* GLKit.framework */; };
+		336F924817B925A100B065F9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 336F924717B925A100B065F9 /* OpenGL.framework */; };
+		33BD556917D699330027F367 /* GLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BD556817D699320027F367 /* GLView.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		33160130184E0A2F003CD999 /* clcsrc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = clcsrc.c; path = ../../../Sources/clcsrc.c; sourceTree = "<group>"; };
+		33160131184E0A2F003CD999 /* clcsrc.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = clcsrc.h; path = ../../../Sources/clcsrc.h; sourceTree = "<group>"; };
+		33160132184E0A2F003CD999 /* Controller.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = Controller.clc; path = ../../../Sources/Controller.clc; sourceTree = "<group>"; };
+		33160134184E0A2F003CD999 /* CLChar.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLChar.h; sourceTree = "<group>"; };
+		33160135184E0A2F003CD999 /* CLDataList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLDataList.clc; sourceTree = "<group>"; };
+		33160136184E0A2F003CD999 /* CLLink.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLLink.h; sourceTree = "<group>"; };
+		33160137184E0A2F003CD999 /* CLObject.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLObject.clc; sourceTree = "<group>"; };
+		33160138184E0A2F003CD999 /* CLObjectList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLObjectList.clc; sourceTree = "<group>"; };
+		33160139184E0A2F003CD999 /* CLString.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLString.clc; sourceTree = "<group>"; };
+		3316013A184E0A2F003CD999 /* CLStringDataList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLStringDataList.clc; sourceTree = "<group>"; };
+		3316013B184E0A2F003CD999 /* CLStringObjectList.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLStringObjectList.clc; sourceTree = "<group>"; };
+		3316013C184E0A2F003CD999 /* CLThread.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = CLThread.clc; sourceTree = "<group>"; };
+		3316013D184E0A2F003CD999 /* GLTexturePixelText.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = GLTexturePixelText.clc; path = ../../../Sources/GLTexturePixelText.clc; sourceTree = "<group>"; };
+		3316013F184E0A2F003CD999 /* GLBitmap.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLBitmap.clc; sourceTree = "<group>"; };
+		33160140184E0A2F003CD999 /* GLBitmapPixelText.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLBitmapPixelText.clc; sourceTree = "<group>"; };
+		33160141184E0A2F003CD999 /* GLDrawable.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLDrawable.clc; sourceTree = "<group>"; };
+		33160142184E0A2F003CD999 /* GLShader.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLShader.clc; sourceTree = "<group>"; };
+		33160143184E0A2F003CD999 /* GLTexture.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLTexture.clc; sourceTree = "<group>"; };
+		33160144184E0A2F003CD999 /* GLVertexBlock.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLVertexBlock.clc; sourceTree = "<group>"; };
+		33160145184E0A2F003CD999 /* GLVertexBuffer.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLVertexBuffer.clc; sourceTree = "<group>"; };
+		33160146184E0A2F003CD999 /* GLVoxelLabel.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLVoxelLabel.clc; sourceTree = "<group>"; };
+		33160148184E0A2F003CD999 /* GLCubePC33.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLCubePC33.clc; sourceTree = "<group>"; };
+		33160149184E0A2F003CD999 /* GLCubePNC334.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLCubePNC334.clc; sourceTree = "<group>"; };
+		3316014A184E0A2F003CD999 /* GLDrawablePC33.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLDrawablePC33.clc; sourceTree = "<group>"; };
+		3316014B184E0A2F003CD999 /* GLDrawablePNC334.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLDrawablePNC334.clc; sourceTree = "<group>"; };
+		3316014C184E0A2F003CD999 /* GLDrawablePT22.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLDrawablePT22.clc; sourceTree = "<group>"; };
+		3316014D184E0A2F003CD999 /* GLGridPT22.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLGridPT22.clc; sourceTree = "<group>"; };
+		3316014E184E0A2F003CD999 /* GLHalfCubePC33.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLHalfCubePC33.clc; sourceTree = "<group>"; };
+		3316014F184E0A2F003CD999 /* GLHalfCubePNC334.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLHalfCubePNC334.clc; sourceTree = "<group>"; };
+		33160150184E0A2F003CD999 /* GLPointP2.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLPointP2.clc; sourceTree = "<group>"; };
+		33160151184E0A2F003CD999 /* GLRectPT22.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLRectPT22.clc; sourceTree = "<group>"; };
+		33160152184E0A2F003CD999 /* GLSegment.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLSegment.clc; sourceTree = "<group>"; };
+		33160153184E0A2F003CD999 /* GLSquarePC33.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLSquarePC33.clc; sourceTree = "<group>"; };
+		33160154184E0A2F003CD999 /* GLSquarePNC334.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = GLSquarePNC334.clc; sourceTree = "<group>"; };
+		33160155184E0A2F003CD999 /* Macros.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = Macros.h; path = ../../../Sources/Macros.h; sourceTree = "<group>"; };
+		33160157184E0A2F003CD999 /* MLMatrix4.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = MLMatrix4.c; sourceTree = "<group>"; };
+		33160158184E0A2F003CD999 /* MLMatrix4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MLMatrix4.h; sourceTree = "<group>"; };
+		33160159184E0A2F003CD999 /* MLVector3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = MLVector3.c; sourceTree = "<group>"; };
+		3316015A184E0A2F003CD999 /* MLVector3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MLVector3.h; sourceTree = "<group>"; };
+		3316015B184E0A2F003CD999 /* MLVector4.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = MLVector4.c; sourceTree = "<group>"; };
+		3316015C184E0A2F003CD999 /* MLVector4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MLVector4.h; sourceTree = "<group>"; };
+		3316015E184E0A2F003CD999 /* PLMass.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = PLMass.clc; sourceTree = "<group>"; };
+		3316015F184E0A2F003CD999 /* PLSegment.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = PLSegment.clc; sourceTree = "<group>"; };
+		33160160184E0A2F003CD999 /* PLSpacer.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = PLSpacer.clc; sourceTree = "<group>"; };
+		33160161184E0A2F003CD999 /* PLUniverse.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = PLUniverse.clc; sourceTree = "<group>"; };
+		33160162184E0A2F003CD999 /* PLVector.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = PLVector.clc; sourceTree = "<group>"; };
+		33160163184E0A2F003CD999 /* Scene.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = Scene.clc; path = ../../../Sources/Scene.clc; sourceTree = "<group>"; };
+		33160164184E0A2F003CD999 /* SceneBox.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = SceneBox.clc; path = ../../../Sources/SceneBox.clc; sourceTree = "<group>"; };
+		33160165184E0A2F003CD999 /* SceneParticle.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = SceneParticle.clc; path = ../../../Sources/SceneParticle.clc; sourceTree = "<group>"; };
+		33160166184E0A2F003CD999 /* ScenePit.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = ScenePit.clc; path = ../../../Sources/ScenePit.clc; sourceTree = "<group>"; };
+		33160167184E0A2F003CD999 /* SceneSlope.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = SceneSlope.clc; path = ../../../Sources/SceneSlope.clc; sourceTree = "<group>"; };
+		33160168184E0A2F003CD999 /* ShaderP2.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = ShaderP2.clc; path = ../../../Sources/ShaderP2.clc; sourceTree = "<group>"; };
+		33160169184E0A2F003CD999 /* ShaderPT22.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = ShaderPT22.clc; path = ../../../Sources/ShaderPT22.clc; sourceTree = "<group>"; };
+		3316016B184E0A2F003CD999 /* TLPixelFont.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = TLPixelFont.clc; sourceTree = "<group>"; };
+		3316016C184E0A2F003CD999 /* TLPixelText.clc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = TLPixelText.clc; sourceTree = "<group>"; };
+		336F922517B924F400B065F9 /* DynamicsX0.4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynamicsX0.4.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		336F922817B924F400B065F9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		336F922B17B924F400B065F9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		336F922C17B924F400B065F9 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		336F922D17B924F400B065F9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		336F923017B924F400B065F9 /* DynamicsX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DynamicsX-Info.plist"; sourceTree = "<group>"; };
+		336F923217B924F400B065F9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		336F923417B924F400B065F9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		336F923617B924F400B065F9 /* DynamicsX-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DynamicsX-Prefix.pch"; sourceTree = "<group>"; };
+		336F923A17B924F400B065F9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		336F923B17B924F400B065F9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		336F923E17B924F400B065F9 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		336F924517B9259700B065F9 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		336F924717B925A100B065F9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		33BD556717D699320027F367 /* GLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLView.h; sourceTree = "<group>"; };
+		33BD556817D699320027F367 /* GLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLView.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		336F922217B924F400B065F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				336F924817B925A100B065F9 /* OpenGL.framework in Frameworks */,
+				336F924617B9259700B065F9 /* GLKit.framework in Frameworks */,
+				336F922917B924F400B065F9 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		33160133184E0A2F003CD999 /* CoreLib */ = {
+			isa = PBXGroup;
+			children = (
+				33160134184E0A2F003CD999 /* CLChar.h */,
+				33160136184E0A2F003CD999 /* CLLink.h */,
+				33160135184E0A2F003CD999 /* CLDataList.clc */,
+				33160137184E0A2F003CD999 /* CLObject.clc */,
+				33160138184E0A2F003CD999 /* CLObjectList.clc */,
+				33160139184E0A2F003CD999 /* CLString.clc */,
+				3316013A184E0A2F003CD999 /* CLStringDataList.clc */,
+				3316013B184E0A2F003CD999 /* CLStringObjectList.clc */,
+				3316013C184E0A2F003CD999 /* CLThread.clc */,
+			);
+			name = CoreLib;
+			path = ../../../Sources/CoreLib;
+			sourceTree = "<group>";
+		};
+		3316013E184E0A2F003CD999 /* GraphicsLib */ = {
+			isa = PBXGroup;
+			children = (
+				3316013F184E0A2F003CD999 /* GLBitmap.clc */,
+				33160140184E0A2F003CD999 /* GLBitmapPixelText.clc */,
+				33160141184E0A2F003CD999 /* GLDrawable.clc */,
+				33160142184E0A2F003CD999 /* GLShader.clc */,
+				33160143184E0A2F003CD999 /* GLTexture.clc */,
+				33160144184E0A2F003CD999 /* GLVertexBlock.clc */,
+				33160145184E0A2F003CD999 /* GLVertexBuffer.clc */,
+				33160146184E0A2F003CD999 /* GLVoxelLabel.clc */,
+				33160147184E0A2F003CD999 /* Primitives */,
+			);
+			name = GraphicsLib;
+			path = ../../../Sources/GraphicsLib;
+			sourceTree = "<group>";
+		};
+		33160147184E0A2F003CD999 /* Primitives */ = {
+			isa = PBXGroup;
+			children = (
+				33160148184E0A2F003CD999 /* GLCubePC33.clc */,
+				33160149184E0A2F003CD999 /* GLCubePNC334.clc */,
+				3316014A184E0A2F003CD999 /* GLDrawablePC33.clc */,
+				3316014B184E0A2F003CD999 /* GLDrawablePNC334.clc */,
+				3316014C184E0A2F003CD999 /* GLDrawablePT22.clc */,
+				3316014D184E0A2F003CD999 /* GLGridPT22.clc */,
+				3316014E184E0A2F003CD999 /* GLHalfCubePC33.clc */,
+				3316014F184E0A2F003CD999 /* GLHalfCubePNC334.clc */,
+				33160150184E0A2F003CD999 /* GLPointP2.clc */,
+				33160151184E0A2F003CD999 /* GLRectPT22.clc */,
+				33160152184E0A2F003CD999 /* GLSegment.clc */,
+				33160153184E0A2F003CD999 /* GLSquarePC33.clc */,
+				33160154184E0A2F003CD999 /* GLSquarePNC334.clc */,
+			);
+			path = Primitives;
+			sourceTree = "<group>";
+		};
+		33160156184E0A2F003CD999 /* MathLib */ = {
+			isa = PBXGroup;
+			children = (
+				33160157184E0A2F003CD999 /* MLMatrix4.c */,
+				33160158184E0A2F003CD999 /* MLMatrix4.h */,
+				33160159184E0A2F003CD999 /* MLVector3.c */,
+				3316015A184E0A2F003CD999 /* MLVector3.h */,
+				3316015B184E0A2F003CD999 /* MLVector4.c */,
+				3316015C184E0A2F003CD999 /* MLVector4.h */,
+			);
+			name = MathLib;
+			path = ../../../Sources/MathLib;
+			sourceTree = "<group>";
+		};
+		3316015D184E0A2F003CD999 /* PhysicsLib */ = {
+			isa = PBXGroup;
+			children = (
+				3316015E184E0A2F003CD999 /* PLMass.clc */,
+				3316015F184E0A2F003CD999 /* PLSegment.clc */,
+				33160160184E0A2F003CD999 /* PLSpacer.clc */,
+				33160161184E0A2F003CD999 /* PLUniverse.clc */,
+				33160162184E0A2F003CD999 /* PLVector.clc */,
+			);
+			name = PhysicsLib;
+			path = ../../../Sources/PhysicsLib;
+			sourceTree = "<group>";
+		};
+		3316016A184E0A2F003CD999 /* TextLib */ = {
+			isa = PBXGroup;
+			children = (
+				3316016B184E0A2F003CD999 /* TLPixelFont.clc */,
+				3316016C184E0A2F003CD999 /* TLPixelText.clc */,
+			);
+			name = TextLib;
+			path = ../../../Sources/TextLib;
+			sourceTree = "<group>";
+		};
+		336F921C17B924F400B065F9 = {
+			isa = PBXGroup;
+			children = (
+				336F922E17B924F400B065F9 /* DynamicsX */,
+				336F922717B924F400B065F9 /* Frameworks */,
+				336F922617B924F400B065F9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		336F922617B924F400B065F9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				336F922517B924F400B065F9 /* DynamicsX0.4.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		336F922717B924F400B065F9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				336F924717B925A100B065F9 /* OpenGL.framework */,
+				336F924517B9259700B065F9 /* GLKit.framework */,
+				336F922817B924F400B065F9 /* Cocoa.framework */,
+				336F922A17B924F400B065F9 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		336F922A17B924F400B065F9 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				336F922B17B924F400B065F9 /* AppKit.framework */,
+				336F922C17B924F400B065F9 /* CoreData.framework */,
+				336F922D17B924F400B065F9 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		336F922E17B924F400B065F9 /* DynamicsX */ = {
+			isa = PBXGroup;
+			children = (
+				33160133184E0A2F003CD999 /* CoreLib */,
+				3316013E184E0A2F003CD999 /* GraphicsLib */,
+				33160156184E0A2F003CD999 /* MathLib */,
+				3316015D184E0A2F003CD999 /* PhysicsLib */,
+				3316016A184E0A2F003CD999 /* TextLib */,
+				3396ED2A184E0CF800DA2174 /* DynamicsX */,
+				33BD556717D699320027F367 /* GLView.h */,
+				33BD556817D699320027F367 /* GLView.m */,
+				336F923A17B924F400B065F9 /* AppDelegate.h */,
+				336F923B17B924F400B065F9 /* AppDelegate.m */,
+				336F922F17B924F400B065F9 /* Supporting Files */,
+			);
+			path = DynamicsX;
+			sourceTree = "<group>";
+		};
+		336F922F17B924F400B065F9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				336F923D17B924F400B065F9 /* MainMenu.xib */,
+				336F923017B924F400B065F9 /* DynamicsX-Info.plist */,
+				336F923117B924F400B065F9 /* InfoPlist.strings */,
+				336F923417B924F400B065F9 /* main.m */,
+				336F923617B924F400B065F9 /* DynamicsX-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3396ED2A184E0CF800DA2174 /* DynamicsX */ = {
+			isa = PBXGroup;
+			children = (
+				33160131184E0A2F003CD999 /* clcsrc.h */,
+				33160130184E0A2F003CD999 /* clcsrc.c */,
+				33160155184E0A2F003CD999 /* Macros.h */,
+				33160132184E0A2F003CD999 /* Controller.clc */,
+				3316013D184E0A2F003CD999 /* GLTexturePixelText.clc */,
+				33160163184E0A2F003CD999 /* Scene.clc */,
+				33160164184E0A2F003CD999 /* SceneBox.clc */,
+				33160165184E0A2F003CD999 /* SceneParticle.clc */,
+				33160166184E0A2F003CD999 /* ScenePit.clc */,
+				33160167184E0A2F003CD999 /* SceneSlope.clc */,
+				33160168184E0A2F003CD999 /* ShaderP2.clc */,
+				33160169184E0A2F003CD999 /* ShaderPT22.clc */,
+			);
+			name = DynamicsX;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		336F922417B924F400B065F9 /* DynamicsX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 336F924217B924F400B065F9 /* Build configuration list for PBXNativeTarget "DynamicsX" */;
+			buildPhases = (
+				336F925E17B9277400B065F9 /* ShellScript */,
+				336F922117B924F400B065F9 /* Sources */,
+				336F922217B924F400B065F9 /* Frameworks */,
+				336F922317B924F400B065F9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DynamicsX;
+			productName = DynamicsX;
+			productReference = 336F922517B924F400B065F9 /* DynamicsX0.4.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		336F921D17B924F400B065F9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Milan Toth";
+			};
+			buildConfigurationList = 336F922017B924F400B065F9 /* Build configuration list for PBXProject "DynamicsX" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 336F921C17B924F400B065F9;
+			productRefGroup = 336F922617B924F400B065F9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				336F922417B924F400B065F9 /* DynamicsX */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		336F922317B924F400B065F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				336F923317B924F400B065F9 /* InfoPlist.strings in Resources */,
+				336F923F17B924F400B065F9 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		336F925E17B9277400B065F9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#! /bin/bash\n/Users/milgra/bin/clcc_0.7 Controller.clc -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/CoreLib/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/MathLib/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/PhysicsLib/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/TextLib/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/GraphicsLib/ -p /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/GraphicsLib/Primitives/ -o /Users/milgra/Desktop/Cloud/Work/DynamicsX/Sources/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		336F922117B924F400B065F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33160171184E0A78003CD999 /* clcsrc.c in Sources */,
+				3316016D184E0A65003CD999 /* MLMatrix4.c in Sources */,
+				3316016E184E0A65003CD999 /* MLVector3.c in Sources */,
+				3316016F184E0A65003CD999 /* MLVector4.c in Sources */,
+				336F923517B924F400B065F9 /* main.m in Sources */,
+				336F923C17B924F400B065F9 /* AppDelegate.m in Sources */,
+				33BD556917D699330027F367 /* GLView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		336F923117B924F400B065F9 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				336F923217B924F400B065F9 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		336F923D17B924F400B065F9 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				336F923E17B924F400B065F9 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		336F924017B924F400B065F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		336F924117B924F400B065F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		336F924317B924F400B065F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DynamicsX/DynamicsX-Prefix.pch";
+				GCC_WARN_PEDANTIC = NO;
+				INFOPLIST_FILE = "DynamicsX/DynamicsX-Info.plist";
+				PRODUCT_NAME = DynamicsX0.4;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		336F924417B924F400B065F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DynamicsX/DynamicsX-Prefix.pch";
+				GCC_WARN_PEDANTIC = NO;
+				INFOPLIST_FILE = "DynamicsX/DynamicsX-Info.plist";
+				PRODUCT_NAME = DynamicsX0.4;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		336F922017B924F400B065F9 /* Build configuration list for PBXProject "DynamicsX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				336F924017B924F400B065F9 /* Debug */,
+				336F924117B924F400B065F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		336F924217B924F400B065F9 /* Build configuration list for PBXNativeTarget "DynamicsX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				336F924317B924F400B065F9 /* Debug */,
+				336F924417B924F400B065F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 336F921D17B924F400B065F9 /* Project object */;
+}

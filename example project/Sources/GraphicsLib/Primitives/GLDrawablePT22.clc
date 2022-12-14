@@ -1,0 +1,105 @@
+#include "GLDrawable.clc"
+
+
+GLDrawablePT22:GLDrawable
+{
+
+
+	// position and scale values
+
+	float dx;
+	float dy;
+
+	float sx;
+	float sy;
+
+
+	// constructor
+
+	void init( )
+	{
+	
+		GLDrawable:init( self );
+		
+		dx = 0;
+		dy = 0;
+		
+		sx = 1;
+		sy = 1;
+	
+	}
+	
+	
+	// destructor
+	
+	void destruct( )
+	{
+	
+		GLDrawable:destruct( self );
+	
+	}
+
+
+	// sets origon of drawable
+	
+	void origo( float theX , float theY )
+	{
+		
+		for ( int index = 0 ;
+				  index < vertexCount * 4 ;
+				  index += 4 )
+		{
+		
+			vertexes[ index 	] += -dx + theX;
+			vertexes[ index + 1 ] += -dy + theY;
+		
+		}
+		
+		dx = theX;
+		dy = theY;
+	
+	}
+	
+	
+	// moves drawable
+
+	void move( float theX , float theY )
+	{
+	
+		dx += theX;
+		dy += theY;
+	
+		for ( int index = 0 ;
+				  index < vertexCount * 4 ;
+				  index += 4 )
+		{
+		
+			vertexes[ index 	] += theX;
+			vertexes[ index + 1 ] += theY;
+		
+		}
+		
+	}
+	
+	
+	// scales drawable
+	
+	void scale( float theX , float theY )
+	{
+	
+		sx *= theX;	
+		sy *= theY;	
+	
+		for ( int index = 0 ;
+				  index < vertexCount * 4 ;
+				  index += 4 )
+		{
+		
+			vertexes[ index 	] *= theX;
+			vertexes[ index + 1 ] *= theY;
+		
+		}
+		
+	}
+	
+}

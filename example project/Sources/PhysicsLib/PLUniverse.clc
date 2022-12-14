@@ -1,0 +1,461 @@
+
+#include "CLObject.clc"
+#include "CLDataList.clc"
+#include "PLMass.clc"
+#include "PLSpacer.clc"
+#include "PLVector.clc"
+#include "PLSegment.clc"
+
+PLUniverse:CLObject
+{
+
+	CLDataList*	walls;
+	CLDataList*	masses;
+	CLDataList*	spacers;
+	PLVector*		gravity;
+
+	PLVector*		bounceMassNormal;
+	PLVector*		bounceMassParallel;
+
+	CLDataList*	collidingWallsPerStep;
+	CLDataList*	collidingNormalsPerStep;
+	CLDataList*	collidingParallelsPerStep;
+
+	// initializer
+
+    void init ( )
+    {
+	
+//		printf( "Universe init %i\n" , ( int ) self );
+		
+		CLObject:init( self );
+		
+		// init
+
+		walls 				= CLDataList:alloc( );	// needs release
+		masses 				= CLDataList:alloc( );	// needs release
+		spacers 			= CLDataList:alloc( );	// needs release
+		
+		gravity 			= PLVector:alloc( );	// needs release
+		bounceMassNormal 	= PLVector:alloc( ); 	// needs release
+		bounceMassParallel 	= PLVector:alloc( ); 	// needs release
+		
+		collidingWallsPerStep       = CLDataList:alloc( );	// needs release
+		collidingNormalsPerStep     = CLDataList:alloc( );	// needs release
+		collidingParallelsPerStep   = CLDataList:alloc( );	// needs release
+		
+		walls:init( );
+		masses:init( );
+		spacers:init( );
+
+		collidingWallsPerStep.init( );
+		collidingNormalsPerStep.init( );
+		collidingParallelsPerStep.init( );
+		
+		gravity:initWithPoints( 0 , -.5 );
+		bounceMassNormal:initWithPoints( 0,0);
+		bounceMassParallel:initWithPoints(0,0 );
+
+    }
+    
+    
+    // destructor
+    
+    void destruct ( )
+    {
+	
+		printf( "Universe destruct %i\n" , ( int ) self );
+    
+		walls.release( );
+		masses.release( );
+		spacers.release( );
+		
+		gravity.release( );
+		bounceMassNormal.release( );
+		bounceMassParallel.release( );
+
+		collidingWallsPerStep.release( );
+		collidingNormalsPerStep.release( );
+		collidingParallelsPerStep.release( );
+
+		CLObject:destruct( self );
+    
+    }
+	
+	
+	// reset containers and state
+	
+	void reset( )
+	{
+
+		walls:removeAllDatas( );
+		masses:removeAllDatas( );
+		spacers:removeAllDatas( );
+		
+		bounceMassNormal:setXY( 0 , 0 );
+		bounceMassParallel:setXY( 0 , 0 );
+	
+	}
+	
+	
+	// adds mass point
+	
+	void addMass( PLMass* theMass )
+	{
+	
+		theMass.retain( );
+		masses:addData( theMass );
+	
+	}
+	
+	
+	// removes mass point
+	
+	void removeMass( PLMass* theMass )
+	{
+	
+		masses:removeData( theMass );
+		theMass.release( );
+	
+	}
+	
+	
+	// adds wall segment
+	
+	void addWall( PLSegment* theWall )
+	{
+
+		theWall.retain( );
+		walls:addData( theWall );
+	
+	}
+	
+	
+	// removes wall segment
+	
+	void removeWall( PLSegment* theWall )
+	{
+
+		walls:removeData( theWall );
+		theWall.release( );
+	
+	}
+	
+	
+	// adds wall segment
+	
+	void addSpacer( PLSpacer* theSpacer )
+	{
+
+		theSpacer.retain( );
+		spacers:addData( theSpacer );
+	
+	}
+	
+	
+	// removes wall segment
+	
+	void removeSpacer( PLSpacer* theSpacer )
+	{
+
+		spacers:removeData( theSpacer );
+		theSpacer.release( );
+	
+	}
+    
+    
+    // simulation step
+    
+    void update ( )
+    {
+        
+		struct CLLink* link;
+    
+        //
+        //  1. Gravity step
+        //
+
+		link = masses.head;
+		
+		while ( link != NULL )
+		{
+			PLMass* mass = link->data;
+
+			PLVector:addVector( mass.force , gravity );
+			link = link->next;
+			
+		}
+
+        //
+        //  2. Resolver step
+        //
+		
+		link = spacers.head;
+		
+		while ( link != NULL )
+		{
+		
+			PLSpacer* spacer = link->data;
+			
+			spacer:respace( );
+			link = link->next;
+		}
+
+        //
+        //  3. Sliding step
+        //
+		
+		link = masses.head;
+		
+		while ( link != NULL )
+		{
+		
+			PLMass*  		linkMass	= link->data;
+			CLDataList* 	baseWalls	= linkMass.baseWalls;
+            
+            if ( baseWalls.length > 0 )
+            {
+            
+                if ( baseWalls.length == 1 )
+                {
+                
+                    // TODO if oroginal force directs away from wall, then switch to bouncing mode ( for ex. falling from ceiling )
+            
+                    // slide mass on semgent
+					
+					PLSegment* baseWallSegment = CLDataList:dataAtIndex( baseWalls , 0 );
+
+					baseWallSegment:slideMass( linkMass );
+                                        
+                    // decrease force with friction ( sliding is happening )
+					
+					PLVector:multiply( linkMass.force , linkMass.friction );
+                    
+                    // prepare mass point for bouncing, to exclude touched wall
+					
+					CLDataList:addData( linkMass.lastTouchedWalls , baseWallSegment );
+					
+                }
+                else
+                {
+                
+                    // two walls sliding can happen only in a bottom touch situation. stopping particle.
+					
+					PLVector:reset( linkMass.force );
+                  
+                }
+
+            }
+			
+			link = link->next;
+
+        }
+
+        
+        //
+        //  4. Bouncing step
+        //
+		
+		link = masses.head;
+
+		while ( link != NULL )
+        {
+		
+			PLMass* linkMass = link->data;
+
+            // store original length of force, collision detection modifies force
+            
+            float originalLength = linkMass.force.length;
+            
+            // iteration until no collision is needed
+            // if a masspoint collides with a wall, moving particle to the endpoint of bounced movement vector
+			
+			while ( self:bounceMass( linkMass ) > 0 ) { }
+            
+            // if collision happened
+
+            if ( linkMass.hadCollision == 1 )
+            {
+
+				CLDataList* baseWalls = linkMass.baseWalls;
+            
+                if ( baseWalls.length == 0 )
+                {
+
+                    // move mass to calculated endpoint
+					
+					PLVector:addVector( linkMass.position , linkMass.force );
+
+                    // resize force to original force's size
+					
+					if ( linkMass.force.length != 0 ) PLVector:multiply( linkMass.force , originalLength / linkMass.force.length );
+
+                    // decrease force with buoyancy
+					
+					PLVector:multiply( linkMass.force , linkMass.buoyancy );
+
+                    // if bounce is too small, set mass to sliding mode
+
+                    if ( linkMass.force.length < 1 )
+                    {
+					
+						baseWalls:addDatasInDataList( linkMass.touchedWalls );                    
+    
+                    }
+                
+                }
+                else
+                {                
+
+                    if ( linkMass.force.length < 1 )
+                    {
+                    
+                        // if collision is smaller, set bouncing wall as the second wall
+						
+						baseWalls:addDatasInDataList( linkMass.touchedWalls );
+                    
+                    }
+                    else
+                    {
+                    
+                        // if collision bigger than border level, put mass to bouncing mode
+						
+						CLDataList:removeAllDatas( baseWalls );
+                    
+                    }
+                    
+                }
+                
+            }
+			
+			link = link->next;
+            
+        }        
+
+
+        //
+        //  MOVEMENT STEP
+        //
+        //  if no collision happened to a masspoint, moving it freely
+        //
+		
+		link = masses.head;
+		
+		while ( link != NULL )
+		{
+		
+			PLMass* linkMass = link->data;
+
+            if ( linkMass.hadCollision == 0 ) 
+			{
+				PLVector:addVector( linkMass.position , linkMass.force );
+			}
+			
+			linkMass.hadCollision = 0;
+			
+			link = link->next;
+        
+        }
+            
+    }
+
+
+    // check collision with walls
+    
+	char bounceMass ( PLMass* theMass )
+    {
+
+		// printf( "Universe bounceMass %i\n" , ( int ) self );
+	
+        // reset temporary containers
+		
+        collidingWallsPerStep:removeAllDatas( );
+        collidingNormalsPerStep:removeAllDatas( );
+        collidingParallelsPerStep:removeAllDatas( );
+        
+        // check collision with all walls besides walls from previous step
+
+		struct CLLink* link = walls.head;
+
+		while ( link != NULL )
+		{
+		
+			PLSegment* linkWall = link->data;
+			
+			char contains = CLDataList:containsData( theMass.lastTouchedWalls , linkWall );
+			
+			if ( contains == 0 ) PLSegment:collideMass( linkWall ,
+														theMass ,
+														collidingWallsPerStep ,
+														collidingNormalsPerStep ,
+														collidingParallelsPerStep );
+			
+			link = link->next;
+            
+        }
+				
+        // if mass collides with any wall
+
+        if ( collidingWallsPerStep.length > 0 )
+        {
+        
+            // calculate average of normal and parallel forces
+
+			bounceMassNormal:setXY( 0 , 0 );
+			bounceMassParallel:setXY( 0 , 0 );
+			
+			struct CLLink* normalsLink = collidingNormalsPerStep.head;
+			
+			while ( normalsLink != NULL )
+			{
+				PLVector* normalsVector = normalsLink->data;
+				PLVector:addVector( bounceMassNormal , normalsVector );
+				normalsLink = normalsLink->next;
+			}
+
+			struct CLLink* parallelsLink = collidingParallelsPerStep.head;
+			
+			while ( parallelsLink != NULL )
+			{
+				PLVector* parallelsVector = parallelsLink->data;
+				PLVector:addVector( bounceMassParallel , parallelsVector );
+				parallelsLink = parallelsLink->next;
+			}
+			
+			// PLVector:multiply( bounceMassNormal , 1 / collidingNormalsPerStep.length );
+			// PLVector:multiply( bounceMassParallel , 1 / collidingParallelsPerStep.length );
+            
+            // set position to last collision point
+			
+			// PLVector:set( theMass:position , theMass:collision );
+			
+            // if more walls colliding, only normal vector sum is watched to avoid particle fallout
+            
+            if ( collidingWallsPerStep.length == 1 )
+            {
+            
+				PLVector:addVector( bounceMassParallel , bounceMassNormal );
+                PLVector:set( theMass.force , bounceMassParallel );
+            
+            }
+            else 
+			{
+				PLVector:set( theMass.force , bounceMassNormal );
+			}
+
+            // store touched walls for
+			
+			CLDataList:removeAllDatas( theMass.touchedWalls );
+            CLDataList:addDatasInDataList( theMass.touchedWalls , collidingWallsPerStep );
+        
+        }
+        
+        // resetting last touched walls if no collisions happened
+		
+        CLDataList:removeAllDatas( theMass.lastTouchedWalls );
+        CLDataList:addDatasInDataList( theMass.lastTouchedWalls , collidingWallsPerStep );
+
+        return collidingWallsPerStep.length > 0;
+    
+    }	
+}

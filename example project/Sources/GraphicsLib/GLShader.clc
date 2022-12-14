@@ -1,0 +1,366 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "CLObject.clc"
+
+// Combines 
+// - shader program compiling and linking
+// - uniform and attribute location binding
+// - drawable and vertex buffer object handling with shader's attrib structure
+
+
+GLShader:CLObject
+{
+
+	char*			name;
+	GLuint			program;
+    GLuint			vertexShader;
+    GLuint			fragmentShader;
+
+	GLuint			uniformCounter;
+	GLint*			uniformLocations;
+	const char**	uniformIdentifiers;
+
+	int				attributeStride;
+	GLuint			attributeCounter;
+	GLuint*			attributeLocations;
+	int*			attributeComponents;
+	const char** 	attributeIdentifiers;
+	long*			attributeOffsetSizes;
+	
+
+	// constructor
+
+	void init ( char* theName )
+	{
+	
+		// printf( "\nGLShader init %s" , theName );
+
+		CLObject:init( self );
+	
+		// program related
+
+		name					= theName;
+        program 				= glCreateProgram( );
+
+		uniformCounter			= 0;
+		uniformLocations	 	= malloc( sizeof( GLint ) );
+		uniformIdentifiers		= malloc( sizeof( const char* ) );
+		
+		attributeStride			= 0;
+		attributeCounter		= 0;
+		attributeLocations 		= malloc( sizeof( GLuint ) );
+		attributeComponents		= malloc( sizeof( int ) );
+		attributeIdentifiers 	= malloc( sizeof( const char* ) );
+		attributeOffsetSizes	= malloc( sizeof( long ) );
+
+	}
+
+
+	// destructor
+	
+	void destruct ( )
+	{
+
+		// printf( "\nGLShader destruct %s" , name );
+
+		// delete program
+			
+		if ( program != 0 ) glDeleteProgram( program );
+
+		free( uniformLocations );
+		free( uniformIdentifiers );
+		
+		free( attributeLocations );
+		free( attributeIdentifiers );
+		free( attributeComponents );
+		free( attributeOffsetSizes );
+
+		program = 0;
+
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	// adds vertex shader
+	
+	void addVertexShader ( const GLchar* theSource )
+	{
+
+		char success = self:compileShader( &(vertexShader) , 
+											 GL_VERTEX_SHADER ,
+											 theSource );
+											 
+        if ( success != 1 ) printf("\nShader %s : Failed to compile vertex shader" , name );
+        else 
+		{
+			printf("\nShader %s : Vertex shader compiled" , name );
+			glAttachShader( program , vertexShader );
+		}
+		
+	}
+	
+	
+	// adds fragment shader
+
+	void addFragmentShader ( const GLchar* theSource )
+	{
+	
+		char success = self:compileShader( &(fragmentShader) , 
+											 GL_FRAGMENT_SHADER ,
+											 theSource );
+											 
+        if ( success != 1 ) printf("\nShader %s : Failed to compile fragment shader" , name );
+        else 
+		{
+			printf("\nShader %s : Fragment shader compiled" , name );
+			glAttachShader( program , fragmentShader );
+		}
+
+	}
+	
+	
+	// adds attribute location
+	
+	void addAttributeLocation ( GLuint theLocation , int theComponentCount , const char* theIdentifier )
+	{
+	
+		attributeCounter 		+= 1;
+		attributeLocations 		= realloc( attributeLocations    , sizeof( GLuint 	   ) * attributeCounter );
+		attributeComponents		= realloc( attributeComponents   , sizeof( int 		   ) * attributeCounter );
+		attributeIdentifiers 	= realloc( attributeIdentifiers  , sizeof( const char* ) * attributeCounter );
+		attributeOffsetSizes	= realloc( attributeOffsetSizes  , sizeof( long 	   ) * attributeCounter );
+		
+		attributeLocations[ attributeCounter - 1 ] 	 	= theLocation;
+		attributeComponents[ attributeCounter - 1 ] 	= theComponentCount;
+		attributeIdentifiers[ attributeCounter - 1 ] 	= theIdentifier;
+		attributeOffsetSizes[ attributeCounter - 1 ] 	= attributeStride * sizeof( GLfloat );
+		
+		attributeStride += theComponentCount;
+		
+	}
+
+
+	// adds uniform identifier, after link we can get the location for the id
+	
+	void addUniformIdentifier ( const char* theIdentifier )
+	{
+
+		uniformCounter 		+= 1;
+		uniformLocations 	= realloc( uniformLocations   , sizeof( GLint ) * uniformCounter );
+		uniformIdentifiers 	= realloc( uniformIdentifiers , sizeof( const char* ) * uniformCounter );
+		
+		uniformIdentifiers[ uniformCounter - 1 ] = theIdentifier;
+		
+	}
+	
+	
+	// returns uniform location for identifier
+	
+	GLint getUniformLocation ( const char* theIdentifier )
+	{
+
+		for ( int index = 0 ; index < uniformCounter ; index++ )
+		{
+			if ( strcmp( uniformIdentifiers[ index ] , theIdentifier ) == 0 ) return uniformLocations[ index ];
+		}
+		
+		return 0;
+	
+	}
+	
+	
+	// link program and shaders together
+	
+	void link ( )
+	{
+	
+        // bind attribute Identifiers. this needs to be done prior to linking.
+		
+		for ( int index = 0 ; index < attributeCounter ; index++ )
+		{
+		
+			glBindAttribLocation( 	program , 
+									attributeLocations[ index ] , 
+									attributeIdentifiers[ index ] );	
+		
+		}
+		
+		// link program
+		
+		char success = self:linkProgram( );
+
+        if ( success != 1 )
+        {
+        
+            printf("\nShader %s : Failed to link self->program: %d" , name , program );
+            
+            if ( program > 0 ) glDeleteProgram( program );
+			
+			program = 0;
+            
+        }
+        else
+		{
+		
+			printf("\nShader %s : Program linked" , name );
+
+			// get uniform Identifiers
+
+			for ( int index = 0 ; index < uniformCounter ; index++ )
+			{
+
+				uniformLocations[ index ] = glGetUniformLocation( program , uniformIdentifiers[ index ] );
+			
+			}
+
+		}
+			
+		// everything is ok, release shaders, program stays
+		
+		if ( vertexShader > 0 )
+		{
+			glDetachShader( program , vertexShader );
+			glDeleteShader( vertexShader );
+		}
+		
+		if ( fragmentShader > 0 )
+		{
+			glDetachShader( program , fragmentShader );
+			glDeleteShader( fragmentShader );
+		}
+
+		vertexShader = 0;
+		fragmentShader = 0;
+		
+		// calcualte stride in bytes
+		
+		attributeStride = attributeStride * sizeof( GLfloat );
+	
+	}
+    
+
+    // compile shader
+	
+	char compileShader ( GLuint*					theShader , 
+						 GLenum						theType , 
+						 const GLchar*				theSource )
+    {
+
+        GLint status;
+        GLint logLength;
+		
+		// create shader
+        
+        *theShader = glCreateShader( theType );
+		
+		// upload source
+		
+        glShaderSource( *theShader , 1 , &theSource , NULL );
+		
+		// compile
+		
+        glCompileShader( *theShader );
+		
+		// get compile log
+        
+        glGetShaderiv( *theShader ,
+                        GL_INFO_LOG_LENGTH ,
+                        &logLength );
+
+        if ( logLength > 0 )
+        {
+            GLchar *log = ( GLchar* ) malloc( logLength );
+            glGetShaderInfoLog( *theShader , logLength , &logLength , log );
+            printf("\nShader %s : compile log:\n%s" , name , log );
+            free( log );
+        }
+		
+		// get status
+        
+        glGetShaderiv( *theShader , 
+						GL_COMPILE_STATUS , 
+						&status );
+		
+        if ( status == 0 )
+        {
+            glDeleteShader(*theShader);
+            return 0;
+        }
+        
+        return 1;
+        
+    }
+	
+	
+	// link shaders together in gpu
+
+	char linkProgram ( )
+    {
+
+        GLint status;
+        GLint logLength;
+		
+		// link program
+
+        glLinkProgram( program );        
+		
+		// get linkage log
+        
+        glGetProgramiv( program , 
+                        GL_INFO_LOG_LENGTH , 
+                        &logLength );
+        
+        if ( logLength > 0 )
+        {
+            GLchar *log = ( GLchar* ) malloc( logLength );
+            glGetProgramInfoLog( program , logLength , &logLength , log );
+            printf("\nShader %s : Program link log:\n%s" , name , log );
+            free( log );
+        }
+		
+		// get status
+        
+        glGetProgramiv( program , 
+                        GL_LINK_STATUS , 
+                        &status );
+        
+        if ( status == 0 ) return 0;
+        
+        return 1;
+		
+    }
+
+
+	// renders vertex buffer
+	
+	void activate ( )
+	{
+	
+		// using program
+	
+		glUseProgram( program );
+		
+		// enable vertex arrays
+
+		for ( int index = 0 ;
+				  index < attributeCounter ; 
+				  index++ )
+		{
+
+			// printf( "\ncomponents %i stride %i offsetsize %i" , attributeComponents[ index ] , attributeStride , attributeOffsetSizes[ index ] );
+
+			glEnableVertexAttribArray ( index );
+
+			glVertexAttribPointer( 	index , 
+									attributeComponents[ index ] ,
+									GL_FLOAT ,
+									GL_FALSE ,
+									attributeStride ,
+									( const GLvoid* )( attributeOffsetSizes[ index ] ) );
+		
+		}
+	
+	}
+		
+}

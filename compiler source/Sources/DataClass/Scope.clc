@@ -1,0 +1,86 @@
+#include "CLObject.clc"
+#include "CLString.clc"
+#include "CLObjectList.clc"
+
+
+#define kScopeTypeUndefined 0
+#define kScopeTypeNormal    1
+#define kScopeTypeForEach   2
+
+
+Scope:CLObject
+{
+
+    char            type;
+    CLString*       scopeLink;
+	CLObjectList*	forEachList;
+    CLObjectList*	instancesList;
+    CLObjectList*	instanceNamesList;
+
+    char            nextScopeType;
+    CLString*       nextScopeLink;
+	
+	
+	// constructor
+    
+    void init( )
+    {
+    
+        CLObject:init( self );
+        
+        type			= kScopeTypeNormal;
+        scopeLink		= NULL;
+        nextScopeLink	= NULL;
+        
+        forEachList:alloc( );
+        instancesList:alloc( );
+        instanceNamesList:alloc( );
+		
+		forEachList:init( );
+		instancesList:init( );
+		instanceNamesList:init( );
+    
+    }
+
+
+	// destructor
+    
+    void destruct( )
+    {
+    
+        if ( scopeLink	   != NULL ) scopeLink.release( );
+        if ( nextScopeLink != NULL ) nextScopeLink.release( );
+
+		forEachList:release( );
+        instancesList:release( );
+        instanceNamesList:release( );
+    
+        CLObject:destruct( self );
+    
+    }
+
+
+	// sets scope link
+
+    void setScopeLink( CLString* theLink )
+    {
+    
+		if ( scopeLink != NULL ) scopeLink:release( );
+        scopeLink = theLink;
+		if ( scopeLink != NULL ) scopeLink.retain( );
+    
+    }
+    
+	
+	// sets next scope link
+    
+    void setNextScopeLink( CLString* theLink )
+    {
+    
+		if ( nextScopeLink != NULL ) nextScopeLink:release( );
+        nextScopeLink = theLink;
+		if ( nextScopeLink != NULL ) nextScopeLink.retain( );
+    
+    }
+
+}

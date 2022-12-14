@@ -1,0 +1,199 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "CLObject.clc"
+
+
+GLBitmap:CLObject
+{
+
+	unsigned char*	data;
+	int				length;
+	
+	int width;
+	int height;
+
+
+	void initWithDimensions( int theWidth ,
+							 int theHeight )
+	{
+
+		CLObject:init( self );
+	
+		width 	= theWidth;
+		height 	= theHeight;
+		length	= 4 * width  * height;
+		
+		data 	= malloc( length );
+		memset( data , 0x0 , length );
+	
+	}
+	
+	
+	void destruct( )
+	{
+	
+		free( data );
+	
+		CLObject:destruct( self );
+	
+	}
+	
+	
+	void fillRectangle( int theX , 
+						int theY , 
+						int theWidth , 
+						int theHeight ,
+						float theR ,
+						float theG ,
+						float theB ,
+						float theA )
+	{
+	
+		unsigned int r = ( int ) ( theR * 255.0 );
+		unsigned int g = ( int ) ( theG * 255.0 );
+		unsigned int b = ( int ) ( theB * 255.0 );
+		unsigned int a = ( int ) ( theA * 255.0 );
+		
+		for ( int y = theY ; y < theY + theHeight ; y++ )
+		{
+		
+			for ( int x = theX ; x < theX + theWidth ; x++ )
+			{
+			
+				int position = ( y * width + x ) * 4;
+				
+				data[ position ] 	 = r;
+				data[ position + 1 ] = g;
+				data[ position + 2 ] = b;
+				data[ position + 3 ] = a;
+		
+			}
+			
+		}
+
+	}
+	
+
+	void setPixel( int theX , int theY , int theR , int theG , int theB , int theA )
+	{
+		printf( "" );
+	}
+	
+	
+	void getPixel( int theX , int theY , int* theR , int* theG , int* theB , int* theA )
+	{	
+		printf( "" );
+	}
+	
+	
+	void addShadow ( )
+	{
+	
+		unsigned char* clone = malloc( length );
+		memcpy( clone , data , length );
+
+		for ( int y = 0 ; y < height ; y++ )
+		{
+		
+			for ( int x = 0 ; x < width ; x++ )
+			{
+
+				int srcIndex = ( y * width + x ) * 4;
+				
+				unsigned int srcA = clone[ srcIndex + 3 ];
+				
+				if ( srcA > 0 )
+				{
+					
+					int NI = ( ( y - 1 ) * width + x ) * 4;
+					int SI = ( ( y + 1 ) * width + x ) * 4;
+					int EI = ( y * width + x - 1 ) * 4;
+					int WI = ( y * width + x + 1 ) * 4;
+					
+					if ( NI > 0 && clone[ NI + 3 ] == 0 ) 
+					{
+						data[ NI + 3 ] =  155;
+						int NI2 = ( ( y - 2 ) * width + x ) * 4;
+						if ( NI2 > 0 && clone[ NI2 + 3 ] == 0 ) data[ NI2 + 3 ] = 55;
+					}
+					
+					if ( SI < length && clone[ SI + 3 ] == 0 )
+					{
+						data[ SI + 3 ] = 155;
+						int SI2 = ( ( y + 2 ) * width + x ) * 4;
+						if ( SI2 < length && clone[ SI2 + 3 ] == 0 ) data[ SI2 + 3 ] = 55;					
+					}
+					
+					if ( x - 1 > 0 && clone[ EI + 3 ] == 0 )
+					{
+						data[ EI + 3 ] = 155;
+						int EI2 = ( y * width + x - 2 ) * 4;
+						if ( EI2 > 0 && clone[ EI2 + 3 ] == 0 ) data[ EI2 + 3 ] = 55;					
+					}
+					
+					if ( x + 1 < width && clone[ WI + 3 ] == 0 )
+					{
+						data[ WI + 3 ] = 155;
+						int WI2 = ( y * width + x + 2 ) * 4;
+						if ( WI2 < length && clone[ WI2 + 3 ] == 0 ) data[ WI2 + 3 ] = 55;										
+					}
+					
+				}
+		
+			}
+			
+		}
+		
+		free( clone );
+		
+	}
+	
+	
+	void blendBitmap ( GLBitmap* theBitmap , int theX , int theY )
+	{
+	
+		int bx = theX + theBitmap.width;
+		if ( bx > width ) bx = width;
+		int by = theY + theBitmap.height;
+		if ( by > height ) by = height;
+		
+		unsigned char* srcData = theBitmap.data;
+		unsigned char* dstData = data;
+		
+		for ( int y = theY ; y < by ; y++ )
+		{
+		
+			for ( int x = theX ; x < bx ; x++ )
+			{
+			
+				int srcIndex = ( ( y - theY ) * theBitmap.width + ( x - theX ) ) * 4;
+				int dstIndex = ( y * width + x ) * 4;
+				
+				float srcR = ( float ) srcData[ srcIndex     ] / 255.0;
+				float srcG = ( float ) srcData[ srcIndex + 1 ] / 255.0;
+				float srcB = ( float ) srcData[ srcIndex + 2 ] / 255.0;
+				float srcA = ( float ) srcData[ srcIndex + 3 ] / 255.0;
+
+				float dstR = ( float ) dstData[ dstIndex     ] / 255.0;
+				float dstG = ( float ) dstData[ dstIndex + 1 ] / 255.0;
+				float dstB = ( float ) dstData[ dstIndex + 2 ] / 255.0;
+				float dstA = ( float ) dstData[ dstIndex + 3 ] / 255.0;
+				
+				float outA = srcA + dstA * ( 1 - srcA );
+				float outR = ( srcR * srcA + dstR * dstA * ( 1 - srcA ) ) / outA;
+				float outG = ( srcG * srcA + dstG * dstA * ( 1 - srcA ) ) / outA;
+				float outB = ( srcB * srcA + dstB * dstA * ( 1 - srcA ) ) / outA;
+				
+				dstData[ dstIndex 	  ] = ( int ) ( outR * 255.0 );
+				dstData[ dstIndex + 1 ] = ( int ) ( outG * 255.0 );
+				dstData[ dstIndex + 2 ] = ( int ) ( outB * 255.0 );
+				dstData[ dstIndex + 3 ] = ( int ) ( outA * 255.0 );
+		
+			}
+			
+		}		
+		
+	}
+
+}

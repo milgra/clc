@@ -1,0 +1,309 @@
+#include "GLDrawablePT22.clc"
+
+
+GLGridPT22:GLDrawablePT22
+{
+
+    unsigned int meshFactor;
+    unsigned int touchRadius;
+
+    unsigned int poolWidth;
+    unsigned int poolHeight;
+    unsigned int screenWidth;
+    unsigned int screenHeight;
+
+    float 		 textureScaleY;
+    float 		 texCoordOffsetS;
+    float 		 textureScaleX;
+    float 		 texCoordOffsetT;
+    
+    float* 		 rippleCoeff;
+	float* 		 rippleSource;
+    float* 		 rippleDest;
+	
+	float 		 textStepX;
+	float 		 texStepY;
+
+
+	// constructor
+
+	void init( 	float  theWidth ,
+				float  theHeight ,
+				GLuint theTexture )
+	{
+	
+		// printf( "\nGLGridPT22 init" );
+
+		GLDrawablePT22:init( self );
+
+		texture 		= theTexture;
+
+        screenWidth 	= theWidth;
+        screenHeight 	= theHeight;
+		
+        meshFactor 		= 10;
+        touchRadius 	= 5;
+		
+        poolWidth 		= 40;
+        poolHeight 		= 40;
+
+		mode 			= GL_TRIANGLE_STRIP;
+		
+		indexCount   	= ( poolHeight - 1 ) * ( poolWidth * 2 + 2 );
+		vertexCount  	= poolWidth * poolHeight;
+		
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+		vertexesSize 	= sizeof( GLfloat ) * 4 * vertexCount;
+
+		indexes 		= malloc( indexesSize );
+		vertexes 		= malloc( vertexesSize );
+
+		textureScaleX = 1.0;
+		textureScaleY = 1.0;
+
+		texCoordOffsetT = 0.0;
+		texCoordOffsetS = 0.0;
+        
+        rippleCoeff 	= ( float* ) malloc( ( touchRadius * 2 + 1 ) * ( touchRadius * 2 + 1 ) * sizeof( float ) );
+        rippleSource 	= ( float* ) malloc( ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );
+        rippleDest		= ( float* ) malloc( ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );
+
+		memset( rippleSource , 0 , ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );
+		memset( rippleDest   , 0 , ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );        
+        
+        initCoefficients( );
+        initMesh( );
+		
+	}
+	
+	
+	// destructor
+
+	void destruct( )
+	{
+
+		printf( "\nGLGridPT22 destruct" );
+
+		free(rippleCoeff);
+		free(rippleSource);
+		free(rippleDest);
+		
+		GLDrawablePT22:destruct( self );
+	
+	}
+	
+	
+	// initialize coefficients
+
+	void initCoefficients( )
+	{
+	
+		for ( int y = 0 ; y <= 2 * touchRadius ; y++ )
+		{
+		
+			for ( int x = 0 ; x <= 2 * touchRadius ; x++ )
+			{
+			
+				float distance = sqrt( ( x - touchRadius ) * ( x - touchRadius ) + ( y - touchRadius ) * ( y - touchRadius ) );
+				
+				if ( distance <= touchRadius )
+				{
+					float factor = ( distance / touchRadius );
+
+					// goes from -512 -> 0
+					rippleCoeff[ y * ( touchRadius * 2 + 1 ) + x ] = -( cos( factor * M_PI ) + 1.f ) * 256.f;
+				}
+				else 
+				{
+					rippleCoeff[ y * ( touchRadius * 2 + 1 ) + x ] = 0.f;   
+				}
+				
+			}
+			
+		}
+		
+	}
+
+
+	// init mesh
+
+	void initMesh( )
+	{
+	
+		for ( int i = 0 ; i < poolHeight ; i++ )
+		{
+		
+			for ( int j = 0 ; j < poolWidth ; j++ )
+			{
+			
+				vertexes[ ( i * poolWidth + j ) * 4 + 0 ] = j * ( screenWidth / ( (float)poolWidth  - 1 ) );
+				vertexes[ ( i * poolWidth + j ) * 4 + 1 ] = i * ( screenHeight / ( (float)poolHeight - 1 ) );
+
+				vertexes[ ( i * poolWidth + j ) * 4 + 2 ] = ( float ) j / ( poolWidth - 1 ) * textureScaleX + texCoordOffsetT;
+				vertexes[ ( i * poolWidth + j ) * 4 + 3 ] =	( float ) i / ( poolHeight - 1 ) * textureScaleY + texCoordOffsetS;
+
+			}
+			         
+		}
+		
+		unsigned int index = 0;
+		
+		for ( int i = 0 ; i < poolHeight - 1 ; i++ )
+		{
+		
+			for ( int j = 0 ; j < poolWidth ; j++ )
+			{
+
+				// emit extra index to create degenerate triangle
+				if ( j == 0 )
+				{
+					indexes[ index ] = i * poolWidth + j;
+					index++;                    
+				}
+				
+				indexes[ index ] = i * poolWidth + j;
+				index++;
+				indexes[ index ] = ( i + 1 ) * poolWidth + j;
+				index++;
+				
+				// emit extra index to create degenerate triangle
+				if ( j == ( poolWidth - 1 ) )
+				{
+					indexes[ index ] = ( i + 1 ) * poolWidth + j;
+					index++;                    
+				}
+
+			}
+			
+		}
+		
+	}
+
+
+	// run ripple simulation
+
+	void runSimulation( )
+	{
+
+		// first pass for simulation buffers...
+		
+		for ( int y = 0 ; y < poolHeight ; y++ )
+		{
+		
+			for ( int x = 0 ; x < poolWidth ; x++ )
+			{
+				// * - denotes current pixel
+				//
+				//       a 
+				//     c * d
+				//       b 
+				
+				// +1 to both x/y values because the border is padded
+				float a = rippleSource[ ( y     ) * ( poolWidth + 2 ) + x + 1 ];
+				float b = rippleSource[ ( y + 2 ) * ( poolWidth + 2 ) + x + 1 ];
+				float c = rippleSource[ ( y + 1 ) * ( poolWidth + 2 ) + x ];
+				float d = rippleSource[ ( y + 1 ) * ( poolWidth + 2 ) + x + 2 ];
+				
+				float result = ( a + b + c + d ) / 2.f - rippleDest[ ( y + 1 ) * ( poolWidth + 2 ) + x + 1 ];
+				
+				// slow down wave
+				
+				result -= result / 8.f;
+				
+				rippleDest[ ( y + 1 ) * ( poolWidth + 2 ) + x + 1 ] = result;
+				
+			}
+			         
+		}
+		
+		// second pass for modifying texture coord
+		for ( int y = 0 ; y < poolHeight ; y++ )
+		{
+		
+			for ( int x = 0 ; x < poolWidth ; x++ )
+			{
+				// * - denotes current pixel
+				//
+				//       a
+				//     c * d
+				//       b
+				
+				// +1 to both x/y values because the border is padded
+				float a = rippleDest[ ( y     ) * ( poolWidth + 2 ) + x + 1 ];
+				float b = rippleDest[ ( y + 2 ) * ( poolWidth + 2 ) + x + 1 ];
+				float c = rippleDest[ ( y + 1 ) * ( poolWidth + 2 ) + x ];
+				float d = rippleDest[ ( y + 1 ) * ( poolWidth + 2 ) + x + 2 ];
+				
+				float s_offset = ( ( b - a ) / 2048.f );
+				float t_offset = ( ( c - d ) / 2048.f );
+				
+				// clamp
+				if ( s_offset < -0.5f ) s_offset = -0.5f;
+				if ( t_offset < -0.5f ) t_offset = -0.5f;
+				if ( s_offset > 0.5f  ) s_offset =  0.5f;
+				if ( t_offset > 0.5f  ) t_offset =  0.5f;
+				
+				float t_tc = ( float ) x / ( poolWidth  - 1 ) * textureScaleX + texCoordOffsetT;
+				float s_tc = ( float ) y / ( poolHeight - 1 ) * textureScaleY + texCoordOffsetS;
+				
+				vertexes[ ( y * poolWidth + x ) * 4 + 2 ] = t_tc + t_offset;
+				vertexes[ ( y * poolWidth + x ) * 4 + 3 ] = s_tc + s_offset;
+
+			}
+			
+		}
+		
+		float *pTmp  = rippleDest;
+		rippleDest 	 = rippleSource;
+		rippleSource = pTmp;
+		 
+	}
+	
+	
+	void reset( )
+	{
+	
+		memset( rippleSource , 0 , ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );
+		memset( rippleDest   , 0 , ( poolWidth + 2 ) * ( poolHeight + 2 ) * sizeof( float ) );        
+	
+	}
+	
+	
+	// start ripple
+
+	void ripple( float theX , float theY )
+	{
+
+		unsigned int xIndex = ( unsigned int ) ( ( theX / screenWidth  ) * poolWidth );
+		unsigned int yIndex = ( unsigned int ) ( ( theY / screenHeight ) * poolHeight );
+		
+		for ( int y = ( int ) yIndex - ( int ) touchRadius ; y <= ( int ) yIndex + ( int ) touchRadius ; y++ )
+		{
+		
+			for (int x=(int)xIndex-(int)touchRadius; x<=(int)xIndex+(int)touchRadius; x++)
+			{       
+			 
+				if ( x >= 0 && x < poolWidth &&
+					 y >= 0 && y < poolHeight )
+				{
+				
+					// +1 to both x/y values because the border is padded
+					rippleSource[ ( poolWidth + 2 ) * ( y + 1 ) + x + 1 ] += rippleCoeff[ ( y - ( yIndex - touchRadius ) ) * ( touchRadius * 2 + 1) + x - ( xIndex - touchRadius ) ];   
+					
+				}
+				
+			}
+			
+		}
+		 
+	}
+
+
+	// start zigzag
+
+	void zigzag( )
+	{
+		printf( "" );
+	}
+
+}

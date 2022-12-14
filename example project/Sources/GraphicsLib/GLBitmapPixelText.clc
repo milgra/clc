@@ -1,0 +1,80 @@
+#include "GLBitmap.clc"
+#include "TLPixelText.clc"
+#include "TLPixelFont.clc"
+
+GLBitmapPixelText:GLBitmap
+{
+
+
+	// constructor
+
+	void init( 	char* 	theLabel ,
+				int 	theWidth ,
+				int 	theHeight )
+	{
+	
+		GLBitmap:initWithDimensions( self , theWidth , theHeight );
+		
+	}
+	
+	
+	// desctructor
+	
+	void destruct( )
+	{
+	
+		GLBitmap:destruct( self );
+	
+	}
+	
+
+	// draws pixel text in image
+
+	void drawPixelTextWithSize( 	TLPixelText* 	theText , 
+									float 			theSize )
+	{
+	
+		float dx = ( float ) width  - theText.width  * theSize;
+		float dy = ( float ) height - theText.height * theSize;
+		
+		dx /= 2;
+		dy /= 2;
+		
+		struct CLLink* link = theText.letters.head;
+		
+		while ( link != NULL )
+		{
+		
+			TLPixelFont* font = link->data;
+			float* 		 cdata = font.data;
+			
+			if ( font.length > 0 )
+			{
+			
+				for ( int index = 0 ;
+						  index < font.length ;
+						  index += 2 )
+				{
+				
+					fillRectangle(  ( int ) dx + cdata[ index 	 ] * theSize ,
+									( int ) dy + cdata[ index + 1 ] * theSize ,
+									( int ) theSize ,
+									( int ) theSize ,
+									1 ,
+									1 ,
+									1 ,
+									1 );
+											
+				}
+
+			}
+			
+			dx += font.width * theSize;
+									
+			link = link->next;
+			
+		}
+
+	}
+
+}

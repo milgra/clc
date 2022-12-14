@@ -1,0 +1,38 @@
+#include "GLDrawable.clc"
+
+
+GLSegment:GLDrawable
+{
+
+	void initWithPoints( GLfloat theAx , GLfloat theAy , GLfloat theBx , GLfloat theBy )
+	{
+
+		GLDrawable:init( self );
+	
+		texture 	= 0;
+		mode 		= GL_LINE_STRIP;
+		
+		// alloc
+		
+		indexCount 		= 2;
+		vertexCount 	= 2;
+
+		vertexesSize 	= sizeof( GLfloat ) * 2 * vertexCount;
+		indexesSize 	= sizeof( GLushort ) * indexCount;
+
+		vertexes 		= malloc( vertexesSize );
+		indexes 		= malloc( indexesSize );
+
+		vertexes[ 0 ] = theAx;
+		vertexes[ 1 ] = theAy;
+		vertexes[ 2 ] = theBx;
+		vertexes[ 3 ] = theBy;
+
+		// index array
+		
+		indexes[ 0 ] = 0;
+		indexes[ 1 ] = 1;
+	
+	}
+
+}
